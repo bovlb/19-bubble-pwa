@@ -423,6 +423,7 @@ small {
 
 .join-fields {
   display: grid;
+  align-items: end;
   grid-template-columns: 1fr 1fr 70px;
   gap: 8px;
 }
@@ -443,4 +444,29 @@ small {
 .bubble-controls small {
   display: block;
   font-size: 11px;
+}
+
+.join-error {
+  margin: 4px 0 16px;
+  padding: 14px 16px;
+  border: 2px solid #9b3527;
+  border-radius: 10px;
+  background: #fff0e9;
+  color: #70271d;
+}
+.join-error strong {
+  display: block;
+  font-size: 16px;
+}
+.join-error p {
+  margin: 6px 0 0;
+  font-size: 14px;
+}
+.join-error:focus {
+  outline: 3px solid #9b3527;
+  outline-offset: 3px;
+}
+input[aria-invalid="true"] {
+  border: 2px solid #9b3527;
+  background: #fff6f1;
 }

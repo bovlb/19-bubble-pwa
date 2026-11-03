@@ -394,3 +394,38 @@ test("persistent browser profile cold-launches offline", async ({
     await rm(directory, { recursive: true, force: true });
   }
 });
+test("checksum error is focused beside the join fields and preserves input", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.goto("./");
+  await page.getByLabel("Adjective", { exact: true }).fill("amber");
+  await page.getByLabel("Noun", { exact: true }).fill("badger");
+  await page.getByLabel("Check digits", { exact: true }).fill("79");
+  await page.getByRole("button", { name: "Find challenge" }).click();
+  const error = page.locator("#join-error");
+  await expect(error).toBeFocused();
+  await expect(error).toContainText("Check digits don’t match");
+  await expect(error).toBeInViewport();
+  await expect(
+    page.getByLabel("Check digits", { exact: true }),
+  ).toHaveAttribute("aria-invalid", "true");
+  await expect(page.getByLabel("Check digits", { exact: true })).toHaveValue(
+    "79",
+  );
+  await expect(page.getByLabel("Adjective", { exact: true })).toHaveValue(
+    "amber",
+  );
+  await page
+    .getByLabel("Or paste a full code or link")
+    .fill("v1-amber-badger-79");
+  await expect(error).toHaveCount(0);
+  await page.getByRole("button", { name: "Find challenge" }).click();
+  await expect(error).toBeFocused();
+  await expect(page.locator("#join")).toHaveAttribute("aria-invalid", "true");
+  await expect(page.locator("#join")).toHaveValue("v1-amber-badger-79");
+  await page.locator("#join").fill("v1-amber-badger-78");
+  await expect(error).toHaveCount(0);
+  await page.getByRole("button", { name: "Find challenge" }).click();
+  await expect(page.locator(".code")).toHaveText("v1-amber-badger-78");
+});

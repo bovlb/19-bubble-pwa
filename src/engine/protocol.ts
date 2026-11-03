@@ -31,6 +31,12 @@ function distanceOne(a: string, b: string) {
   }
   return edits + a.length - i + b.length - j <= 1;
 }
+export class ChecksumError extends Error {
+  constructor() {
+    super("Check digits do not match these words");
+    this.name = "ChecksumError";
+  }
+}
 export type Parsed = { codes: string[]; corrected: boolean };
 export async function parseChallenge(
   input: string,
@@ -62,12 +68,11 @@ export async function parseChallenge(
       const code = await codeFor(x, y);
       if (code.endsWith("-" + dd)) codes.push(code);
     }
-  if (!codes.length)
-    throw Error(
-      lists.adjectives.includes(a) && lists.nouns.includes(n)
-        ? "Check digits do not match these words"
-        : "No matching challenge; check the words and digits",
-    );
+  if (!codes.length) {
+    if (lists.adjectives.includes(a) && lists.nouns.includes(n))
+      throw new ChecksumError();
+    throw Error("No matching challenge; check the words and digits");
+  }
   return {
     codes,
     corrected: !lists.adjectives.includes(a) || !lists.nouns.includes(n),

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
+  ChecksumError,
   generateChallenge,
   parseChallenge,
   randomCode,
@@ -55,6 +56,10 @@ function App() {
     [busy, setBusy] = useState(false),
     [unsaved, setUnsaved] = useState(false),
     [join, setJoin] = useState(""),
+    [joinError, setJoinError] = useState<{
+      message: string;
+      checksum: boolean;
+    } | null>(null),
     [wordA, setWordA] = useState(""),
     [wordN, setWordN] = useState(""),
     [digits, setDigits] = useState(""),
@@ -63,6 +68,14 @@ function App() {
     [update, setUpdate] = useState<ServiceWorker | null>(null),
     [offlineReady, setOfflineReady] = useState(false),
     [highlight, setHighlight] = useState("all");
+  const joinErrorRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (joinError) joinErrorRef.current?.focus();
+  }, [joinError]);
+  function clearJoinFeedback() {
+    setJoinError(null);
+    setChoices([]);
+  }
   const lock = useRef(false),
     revision = useRef(0),
     worker = useRef<Worker | null>(null);
@@ -310,17 +323,26 @@ function App() {
                 onSubmit={(e) => {
                   e.preventDefault();
                   run(async () => {
-                    const p = await parseChallenge(
-                      join || `${wordA}-${wordN}-${digits}`,
-                    );
-                    setChoices(p.codes);
-                    if (p.corrected)
-                      setNotice("Corrected code: " + p.codes.join(", "));
-                    if (
-                      p.codes.length === 1 &&
-                      !attempts.some((a) => a.code === p.codes[0])
-                    )
-                      await start(p.codes[0]);
+                    clearJoinFeedback();
+                    setNotice("");
+                    try {
+                      const p = await parseChallenge(
+                        join || `${wordA}-${wordN}-${digits}`,
+                      );
+                      setChoices(p.codes);
+                      if (p.corrected)
+                        setNotice("Corrected code: " + p.codes.join(", "));
+                      if (
+                        p.codes.length === 1 &&
+                        !attempts.some((a) => a.code === p.codes[0])
+                      )
+                        await start(p.codes[0]);
+                    } catch (error) {
+                      setJoinError({
+                        message: (error as Error).message,
+                        checksum: error instanceof ChecksumError,
+                      });
+                    }
                   });
                 }}
               >
@@ -330,6 +352,7 @@ function App() {
                     <input
                       value={wordA}
                       onChange={(e) => {
+                        clearJoinFeedback();
                         setWordA(e.target.value);
                         setJoin("");
                       }}
@@ -341,6 +364,7 @@ function App() {
                     <input
                       value={wordN}
                       onChange={(e) => {
+                        clearJoinFeedback();
                         setWordN(e.target.value);
                         setJoin("");
                       }}
@@ -348,12 +372,17 @@ function App() {
                     />
                   </label>
                   <label>
-                    Digits
+                    Check digits
                     <input
+                      aria-invalid={!!joinError?.checksum && !join}
+                      aria-describedby={
+                        joinError && !join ? "join-error" : undefined
+                      }
                       value={digits}
                       inputMode="numeric"
                       maxLength={2}
                       onChange={(e) => {
+                        clearJoinFeedback();
                         setDigits(e.target.value);
                         setJoin("");
                       }}
@@ -363,10 +392,37 @@ function App() {
                 <label htmlFor="join">Or paste a full code or link</label>
                 <input
                   id="join"
+                  aria-invalid={!!joinError && !!join}
+                  aria-describedby={
+                    joinError && join ? "join-error" : undefined
+                  }
                   value={join}
                   placeholder="v1-adjective-noun-00"
-                  onChange={(e) => setJoin(e.target.value)}
+                  onChange={(e) => {
+                    clearJoinFeedback();
+                    setJoin(e.target.value);
+                  }}
                 />
+                {joinError && (
+                  <div
+                    id="join-error"
+                    ref={joinErrorRef}
+                    role="alert"
+                    tabIndex={-1}
+                    className="join-error"
+                  >
+                    <strong>
+                      {joinError.checksum
+                        ? "Check digits don’t match"
+                        : "Couldn’t join this challenge"}
+                    </strong>
+                    <p>
+                      {joinError.checksum
+                        ? "The words are recognized, but the two check digits don’t match. Compare all three parts with the original code, then try again."
+                        : joinError.message}
+                    </p>
+                  </div>
+                )}
                 <button disabled={busy}>Find challenge</button>
               </form>
               {choices.map((code) => (
