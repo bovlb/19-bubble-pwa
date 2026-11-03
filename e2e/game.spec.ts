@@ -42,6 +42,10 @@ test("full game, refresh after roll, replay, responsive layout", async ({
       () => document.documentElement.scrollWidth <= innerWidth,
     ),
   ).toBe(true);
+  const completedTotal = await page.locator(".total").innerText();
+  await page.reload();
+  await page.getByRole("button", { name: new RegExp(code) }).click();
+  await expect(page.locator(".total")).toHaveText(completedTotal);
   // Disable the native share sheet for deterministic copy fallback.
   await page.evaluate(() =>
     Object.defineProperty(navigator, "share", {
@@ -317,4 +321,76 @@ test("first installation does not advertise an update", async ({ page }) => {
   await expect(
     page.getByRole("button", { name: "Apply update at this safe point" }),
   ).toHaveCount(0);
+});
+test("refresh before rolling and after provisional choices consumes nothing", async ({
+  page,
+}) => {
+  await start(page);
+  await expect(
+    page.getByText("Saved on this device", { exact: true }),
+  ).toBeVisible();
+  await page.reload();
+  await page.getByRole("button", { name: /Continue Game/ }).click();
+  await expect(
+    page.getByRole("button", { name: "Roll dice", exact: true }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Roll dice", exact: true }).click();
+  const dice = await page.locator(".dice").getAttribute("aria-label");
+  await page.locator(".operations button").first().click();
+  await page.locator(".bubble.legal").first().click();
+  await page.reload();
+  await page.getByRole("button", { name: /Continue Game/ }).click();
+  await expect(page.locator(".dice")).toHaveAttribute("aria-label", dice!);
+  await expect(
+    page.getByText("0 of 19 placed · Turn 1", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Submit Move", exact: true }),
+  ).toBeDisabled();
+  await expect(page.locator(".operations button").first()).toContainText(
+    "4 uses left",
+  );
+});
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join as joinPath } from "node:path";
+test("persistent browser profile cold-launches offline", async ({
+  playwright,
+  browserName,
+}) => {
+  const directory = await mkdtemp(joinPath(tmpdir(), "bubble19-e2e-"));
+  const options = {
+    headless: true,
+    baseURL: "http://127.0.0.1:4173/19-bubble-pwa/",
+    ...(browserName === "chromium" && process.env.USE_SYSTEM_CHROME
+      ? { channel: "chrome" }
+      : {}),
+  };
+  let context = await playwright[browserName].launchPersistentContext(
+    directory,
+    options,
+  );
+  try {
+    const page = context.pages()[0] ?? (await context.newPage());
+    await start(page);
+    await expect(
+      page.getByText("Ready for offline play", { exact: true }),
+    ).toBeVisible();
+    await submit(page);
+    await context.close();
+    context = await playwright[browserName].launchPersistentContext(directory, {
+      ...options,
+      offline: true,
+    });
+    const cold = context.pages()[0] ?? (await context.newPage());
+    await cold.goto("./");
+    await cold.getByRole("button", { name: /Continue Game/ }).click();
+    await expect(
+      cold.getByText("1 of 19 placed · Turn 2", { exact: true }),
+    ).toBeVisible();
+    await submit(cold);
+  } finally {
+    await context.close();
+    await rm(directory, { recursive: true, force: true });
+  }
 });
