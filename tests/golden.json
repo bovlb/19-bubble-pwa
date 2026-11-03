@@ -1,0 +1,1657 @@
+{
+  "edition": "v1",
+  "digests": {
+    "adjectives.txt": "8510492c84fc8f89b49d8b46d7171d194e875e63ed9929a04123b05a6e1750df",
+    "nouns.txt": "86cf55fc0fba6b740a575c1adf71ce334759f374fad0e3014ff287ed7f8cb9b8"
+  },
+  "vectors": [
+    {
+      "code": "v1-amber-badger-78",
+      "coordinates": [
+        [0, 4],
+        [0, 5],
+        [1, 0],
+        [1, 1],
+        [1, 2],
+        [1, 3],
+        [1, 4],
+        [1, 5],
+        [2, 0],
+        [2, 1],
+        [2, 2],
+        [2, 3],
+        [2, 4],
+        [2, 5],
+        [3, 0],
+        [3, 1],
+        [3, 2],
+        [3, 4],
+        [3, 5]
+      ],
+      "edges": [
+        [0, 1],
+        [0, 5],
+        [0, 6],
+        [1, 6],
+        [1, 7],
+        [2, 3],
+        [2, 8],
+        [3, 4],
+        [3, 8],
+        [3, 9],
+        [4, 5],
+        [4, 9],
+        [4, 10],
+        [5, 6],
+        [5, 10],
+        [5, 11],
+        [6, 7],
+        [6, 11],
+        [6, 12],
+        [7, 12],
+        [7, 13],
+        [8, 9],
+        [8, 14],
+        [9, 10],
+        [9, 14],
+        [9, 15],
+        [10, 11],
+        [10, 15],
+        [10, 16],
+        [11, 12],
+        [11, 16],
+        [12, 13],
+        [12, 17],
+        [13, 17],
+        [13, 18],
+        [14, 15],
+        [15, 16],
+        [17, 18]
+      ],
+      "dice": [
+        [3, 1],
+        [1, 4],
+        [1, 3],
+        [5, 5],
+        [2, 4],
+        [2, 5],
+        [0, 5],
+        [0, 4],
+        [5, 5],
+        [0, 2],
+        [1, 2],
+        [5, 1],
+        [3, 1],
+        [5, 6],
+        [3, 6],
+        [2, 6],
+        [2, 1],
+        [2, 1],
+        [1, 3]
+      ],
+      "moves": [
+        {
+          "nodeId": 0,
+          "operation": "add"
+        },
+        {
+          "nodeId": 1,
+          "operation": "subtract"
+        },
+        {
+          "nodeId": 5,
+          "operation": "multiply"
+        },
+        {
+          "nodeId": 4,
+          "operation": "min"
+        },
+        {
+          "nodeId": 3,
+          "operation": "max"
+        },
+        {
+          "nodeId": 2,
+          "operation": "add"
+        },
+        {
+          "nodeId": 6,
+          "operation": "subtract"
+        },
+        {
+          "nodeId": 7,
+          "operation": "multiply"
+        },
+        {
+          "nodeId": 8,
+          "operation": "min"
+        },
+        {
+          "nodeId": 9,
+          "operation": "max"
+        },
+        {
+          "nodeId": 10,
+          "operation": "add"
+        },
+        {
+          "nodeId": 11,
+          "operation": "subtract"
+        },
+        {
+          "nodeId": 12,
+          "operation": "multiply"
+        },
+        {
+          "nodeId": 13,
+          "operation": "min"
+        },
+        {
+          "nodeId": 14,
+          "operation": "max"
+        },
+        {
+          "nodeId": 15,
+          "operation": "add"
+        },
+        {
+          "nodeId": 16,
+          "operation": "subtract"
+        },
+        {
+          "nodeId": 17,
+          "operation": "multiply"
+        },
+        {
+          "nodeId": 18,
+          "operation": "min"
+        }
+      ],
+      "total": 26
+    },
+    {
+      "code": "v1-brave-bear-67",
+      "coordinates": [
+        [0, 2],
+        [0, 3],
+        [0, 4],
+        [1, 2],
+        [1, 3],
+        [1, 4],
+        [1, 5],
+        [2, 1],
+        [2, 2],
+        [2, 3],
+        [2, 4],
+        [3, 0],
+        [3, 1],
+        [3, 2],
+        [3, 3],
+        [4, 0],
+        [4, 1],
+        [4, 2],
+        [5, 2]
+      ],
+      "edges": [
+        [0, 1],
+        [0, 3],
+        [1, 2],
+        [1, 3],
+        [1, 4],
+        [2, 4],
+        [2, 5],
+        [3, 4],
+        [3, 7],
+        [3, 8],
+        [4, 5],
+        [4, 8],
+        [4, 9],
+        [5, 6],
+        [5, 9],
+        [5, 10],
+        [6, 10],
+        [7, 8],
+        [7, 11],
+        [7, 12],
+        [8, 9],
+        [8, 12],
+        [8, 13],
+        [9, 10],
+        [9, 13],
+        [9, 14],
+        [10, 14],
+        [11, 12],
+        [11, 15],
+        [12, 13],
+        [12, 15],
+        [12, 16],
+        [13, 14],
+        [13, 16],
+        [13, 17],
+        [14, 17],
+        [15, 16],
+        [16, 17],
+        [17, 18]
+      ],
+      "dice": [
+        [5, 1],
+        [2, 2],
+        [4, 1],
+        [3, 1],
+        [1, 1],
+        [1, 2],
+        [1, 6],
+        [4, 3],
+        [4, 4],
+        [1, 6],
+        [2, 1],
+        [3, 3],
+        [4, 3],
+        [4, 5],
+        [4, 4],
+        [2, 4],
+        [0, 1],
+        [1, 2],
+        [3, 5]
+      ],
+      "moves": [
+        {
+          "nodeId": 0,
+          "operation": "add"
+        },
+        {
+          "nodeId": 1,
+          "operation": "subtract"
+        },
+        {
+          "nodeId": 2,
+          "operation": "multiply"
+        },
+        {
+          "nodeId": 3,
+          "operation": "min"
+        },
+        {
+          "nodeId": 4,
+          "operation": "max"
+        },
+        {
+          "nodeId": 5,
+          "operation": "add"
+        },
+        {
+          "nodeId": 6,
+          "operation": "subtract"
+        },
+        {
+          "nodeId": 7,
+          "operation": "multiply"
+        },
+        {
+          "nodeId": 8,
+          "operation": "min"
+        },
+        {
+          "nodeId": 9,
+          "operation": "max"
+        },
+        {
+          "nodeId": 10,
+          "operation": "add"
+        },
+        {
+          "nodeId": 11,
+          "operation": "subtract"
+        },
+        {
+          "nodeId": 12,
+          "operation": "multiply"
+        },
+        {
+          "nodeId": 13,
+          "operation": "min"
+        },
+        {
+          "nodeId": 14,
+          "operation": "max"
+        },
+        {
+          "nodeId": 15,
+          "operation": "add"
+        },
+        {
+          "nodeId": 16,
+          "operation": "subtract"
+        },
+        {
+          "nodeId": 17,
+          "operation": "multiply"
+        },
+        {
+          "nodeId": 18,
+          "operation": "min"
+        }
+      ],
+      "total": 29
+    },
+    {
+      "code": "v1-bright-beaver-27",
+      "coordinates": [
+        [0, 3],
+        [0, 4],
+        [0, 5],
+        [1, 0],
+        [1, 1],
+        [1, 2],
+        [1, 3],
+        [1, 4],
+        [2, 0],
+        [2, 1],
+        [2, 2],
+        [2, 3],
+        [3, 0],
+        [3, 1],
+        [3, 2],
+        [3, 3],
+        [4, 0],
+        [4, 1],
+        [4, 2]
+      ],
+      "edges": [
+        [0, 1],
+        [0, 5],
+        [0, 6],
+        [1, 2],
+        [1, 6],
+        [1, 7],
+        [2, 7],
+        [3, 4],
+        [3, 8],
+        [4, 5],
+        [4, 8],
+        [4, 9],
+        [5, 6],
+        [5, 9],
+        [5, 10],
+        [6, 7],
+        [6, 10],
+        [6, 11],
+        [7, 11],
+        [8, 9],
+        [8, 12],
+        [9, 10],
+        [9, 12],
+        [9, 13],
+        [10, 11],
+        [10, 13],
+        [10, 14],
+        [11, 14],
+        [11, 15],
+        [12, 13],
+        [12, 16],
+        [13, 14],
+        [13, 16],
+        [13, 17],
+        [14, 15],
+        [14, 17],
+        [14, 18],
+        [15, 18],
+        [16, 17],
+        [17, 18]
+      ],
+      "dice": [
+        [4, 2],
+        [4, 2],
+        [1, 4],
+        [3, 2],
+        [0, 3],
+        [1, 5],
+        [1, 4],
+        [3, 2],
+        [0, 4],
+        [5, 2],
+        [2, 3],
+        [4, 3],
+        [4, 6],
+        [4, 3],
+        [2, 2],
+        [4, 4],
+        [1, 4],
+        [0, 4],
+        [1, 2]
+      ],
+      "moves": [
+        {
+          "nodeId": 0,
+          "operation": "add"
+        },
+        {
+          "nodeId": 1,
+          "operation": "subtract"
+        },
+        {
+          "nodeId": 2,
+          "operation": "multiply"
+        },
+        {
+          "nodeId": 5,
+          "operation": "min"
+        },
+        {
+          "nodeId": 4,
+          "operation": "max"
+        },
+        {
+          "nodeId": 3,
+          "operation": "add"
+        },
+        {
+          "nodeId": 6,
+          "operation": "subtract"
+        },
+        {
+          "nodeId": 7,
+          "operation": "multiply"
+        },
+        {
+          "nodeId": 8,
+          "operation": "min"
+        },
+        {
+          "nodeId": 9,
+          "operation": "max"
+        },
+        {
+          "nodeId": 10,
+          "operation": "add"
+        },
+        {
+          "nodeId": 11,
+          "operation": "subtract"
+        },
+        {
+          "nodeId": 12,
+          "operation": "multiply"
+        },
+        {
+          "nodeId": 13,
+          "operation": "min"
+        },
+        {
+          "nodeId": 14,
+          "operation": "max"
+        },
+        {
+          "nodeId": 15,
+          "operation": "add"
+        },
+        {
+          "nodeId": 16,
+          "operation": "subtract"
+        },
+        {
+          "nodeId": 17,
+          "operation": "multiply"
+        },
+        {
+          "nodeId": 18,
+          "operation": "min"
+        }
+      ],
+      "total": 5
+    },
+    {
+      "code": "v1-calm-bison-21",
+      "coordinates": [
+        [0, 3],
+        [1, 2],
+        [2, 2],
+        [3, 0],
+        [3, 1],
+        [3, 2],
+        [3, 3],
+        [3, 4],
+        [4, 0],
+        [4, 1],
+        [4, 2],
+        [4, 3],
+        [4, 4],
+        [4, 5],
+        [5, 0],
+        [5, 1],
+        [5, 2],
+        [5, 3],
+        [5, 4]
+      ],
+      "edges": [
+        [0, 1],
+        [1, 2],
+        [2, 4],
+        [2, 5],
+        [3, 4],
+        [3, 8],
+        [4, 5],
+        [4, 8],
+        [4, 9],
+        [5, 6],
+        [5, 9],
+        [5, 10],
+        [6, 7],
+        [6, 10],
+        [6, 11],
+        [7, 11],
+        [7, 12],
+        [8, 9],
+        [8, 14],
+        [9, 10],
+        [9, 14],
+        [9, 15],
+        [10, 11],
+        [10, 15],
+        [10, 16],
+        [11, 12],
+        [11, 16],
+        [11, 17],
+        [12, 13],
+        [12, 17],
+        [12, 18],
+        [13, 18],
+        [14, 15],
+        [15, 16],
+        [16, 17],
+        [17, 18]
+      ],
+      "dice": [
+        [5, 1],
+        [1, 5],
+        [3, 4],
+        [5, 2],
+        [2, 3],
+        [3, 6],
+        [0, 3],
+        [4, 4],
+        [0, 4],
+        [5, 6],
+        [1, 5],
+        [5, 3],
+        [4, 1],
+        [5, 6],
+        [5, 3],
+        [2, 6],
+        [5, 3],
+        [4, 4],
+        [5, 5]
+      ],
+      "moves": [
+        {
+          "nodeId": 0,
+          "operation": "add"
+        },
+        {
+          "nodeId": 1,
+          "operation": "subtract"
+        },
+        {
+          "nodeId": 2,
+          "operation": "multiply"
+        },
+        {
+          "nodeId": 4,
+          "operation": "min"
+        },
+        {
+          "nodeId": 3,
+          "operation": "max"
+        },
+        {
+          "nodeId": 5,
+          "operation": "add"
+        },
+        {
+          "nodeId": 6,
+          "operation": "subtract"
+        },
+        {
+          "nodeId": 7,
+          "operation": "multiply"
+        },
+        {
+          "nodeId": 8,
+          "operation": "min"
+        },
+        {
+          "nodeId": 9,
+          "operation": "max"
+        },
+        {
+          "nodeId": 10,
+          "operation": "add"
+        },
+        {
+          "nodeId": 11,
+          "operation": "subtract"
+        },
+        {
+          "nodeId": 12,
+          "operation": "multiply"
+        },
+        {
+          "nodeId": 13,
+          "operation": "min"
+        },
+        {
+          "nodeId": 14,
+          "operation": "max"
+        },
+        {
+          "nodeId": 15,
+          "operation": "add"
+        },
+        {
+          "nodeId": 16,
+          "operation": "subtract"
+        },
+        {
+          "nodeId": 17,
+          "operation": "multiply"
+        },
+        {
+          "nodeId": 18,
+          "operation": "min"
+        }
+      ],
+      "total": 13
+    },
+    {
+      "code": "v1-clever-bunny-34",
+      "coordinates": [
+        [0, 3],
+        [0, 4],
+        [1, 2],
+        [1, 3],
+        [1, 4],
+        [1, 5],
+        [2, 1],
+        [2, 2],
+        [2, 3],
+        [2, 4],
+        [3, 0],
+        [3, 2],
+        [3, 3],
+        [3, 4],
+        [4, 2],
+        [4, 3],
+        [4, 4],
+        [5, 2],
+        [5, 3]
+      ],
+      "edges": [
+        [0, 1],
+        [0, 2],
+        [0, 3],
+        [1, 3],
+        [1, 4],
+        [2, 3],
+        [2, 6],
+        [2, 7],
+        [3, 4],
+        [3, 7],
+        [3, 8],
+        [4, 5],
+        [4, 8],
+        [4, 9],
+        [5, 9],
+        [6, 7],
+        [6, 10],
+        [7, 8],
+        [7, 11],
+        [8, 9],
+        [8, 11],
+        [8, 12],
+        [9, 12],
+        [9, 13],
+        [11, 12],
+        [11, 14],
+        [12, 13],
+        [12, 14],
+        [12, 15],
+        [13, 15],
+        [13, 16],
+        [14, 15],
+        [14, 17],
+        [15, 16],
+        [15, 17],
+        [15, 18],
+        [16, 18],
+        [17, 18]
+      ],
+      "dice": [
+        [3, 2],
+        [1, 5],
+        [3, 5],
+        [5, 5],
+        [0, 5],
+        [3, 6],
+        [2, 5],
+        [3, 3],
+        [4, 6],
+        [0, 6],
+        [4, 2],
+        [4, 4],
+        [0, 1],
+        [5, 6],
+        [4, 2],
+        [2, 1],
+        [5, 6],
+        [4, 5],
+        [2, 2]
+      ],
+      "moves": [
+        {
+          "nodeId": 0,
+          "operation": "add"
+        },
+        {
+          "nodeId": 1,
+          "operation": "subtract"
+        },
+        {
+          "nodeId": 2,
+          "operation": "multiply"
+        },
+        {
+          "nodeId": 3,
+          "operation": "min"
+        },
+        {
+          "nodeId": 4,
+          "operation": "max"
+        },
+        {
+          "nodeId": 5,
+          "operation": "add"
+        },
+        {
+          "nodeId": 6,
+          "operation": "subtract"
+        },
+        {
+          "nodeId": 7,
+          "operation": "multiply"
+        },
+        {
+          "nodeId": 8,
+          "operation": "min"
+        },
+        {
+          "nodeId": 9,
+          "operation": "max"
+        },
+        {
+          "nodeId": 10,
+          "operation": "add"
+        },
+        {
+          "nodeId": 11,
+          "operation": "subtract"
+        },
+        {
+          "nodeId": 12,
+          "operation": "multiply"
+        },
+        {
+          "nodeId": 13,
+          "operation": "min"
+        },
+        {
+          "nodeId": 14,
+          "operation": "max"
+        },
+        {
+          "nodeId": 15,
+          "operation": "add"
+        },
+        {
+          "nodeId": 16,
+          "operation": "subtract"
+        },
+        {
+          "nodeId": 17,
+          "operation": "multiply"
+        },
+        {
+          "nodeId": 18,
+          "operation": "min"
+        }
+      ],
+      "total": 20
+    },
+    {
+      "code": "v1-cloudy-camel-53",
+      "coordinates": [
+        [0, 4],
+        [1, 3],
+        [1, 4],
+        [1, 5],
+        [2, 2],
+        [2, 3],
+        [2, 4],
+        [2, 5],
+        [3, 2],
+        [3, 3],
+        [3, 4],
+        [3, 5],
+        [4, 1],
+        [4, 2],
+        [4, 3],
+        [4, 4],
+        [5, 0],
+        [5, 1],
+        [5, 2]
+      ],
+      "edges": [
+        [0, 1],
+        [0, 2],
+        [1, 2],
+        [1, 4],
+        [1, 5],
+        [2, 3],
+        [2, 5],
+        [2, 6],
+        [3, 6],
+        [3, 7],
+        [4, 5],
+        [4, 8],
+        [5, 6],
+        [5, 8],
+        [5, 9],
+        [6, 7],
+        [6, 9],
+        [6, 10],
+        [7, 10],
+        [7, 11],
+        [8, 9],
+        [8, 12],
+        [8, 13],
+        [9, 10],
+        [9, 13],
+        [9, 14],
+        [10, 11],
+        [10, 14],
+        [10, 15],
+        [11, 15],
+        [12, 13],
+        [12, 16],
+        [12, 17],
+        [13, 14],
+        [13, 17],
+        [13, 18],
+        [14, 15],
+        [14, 18],
+        [16, 17],
+        [17, 18]
+      ],
+      "dice": [
+        [1, 2],
+        [1, 4],
+        [2, 5],
+        [2, 6],
+        [5, 6],
+        [0, 4],
+        [4, 6],
+        [3, 3],
+        [2, 5],
+        [1, 1],
+        [3, 2],
+        [5, 5],
+        [2, 4],
+        [3, 2],
+        [2, 3],
+        [2, 4],
+        [3, 4],
+        [3, 4],
+        [3, 1]
+      ],
+      "moves": [
+        {
+          "nodeId": 0,
+          "operation": "add"
+        },
+        {
+          "nodeId": 1,
+          "operation": "subtract"
+        },
+        {
+          "nodeId": 2,
+          "operation": "multiply"
+        },
+        {
+          "nodeId": 3,
+          "operation": "min"
+        },
+        {
+          "nodeId": 4,
+          "operation": "max"
+        },
+        {
+          "nodeId": 5,
+          "operation": "add"
+        },
+        {
+          "nodeId": 6,
+          "operation": "subtract"
+        },
+        {
+          "nodeId": 7,
+          "operation": "multiply"
+        },
+        {
+          "nodeId": 8,
+          "operation": "min"
+        },
+        {
+          "nodeId": 9,
+          "operation": "max"
+        },
+        {
+          "nodeId": 10,
+          "operation": "add"
+        },
+        {
+          "nodeId": 11,
+          "operation": "subtract"
+        },
+        {
+          "nodeId": 12,
+          "operation": "multiply"
+        },
+        {
+          "nodeId": 13,
+          "operation": "min"
+        },
+        {
+          "nodeId": 14,
+          "operation": "max"
+        },
+        {
+          "nodeId": 15,
+          "operation": "add"
+        },
+        {
+          "nodeId": 16,
+          "operation": "subtract"
+        },
+        {
+          "nodeId": 17,
+          "operation": "multiply"
+        },
+        {
+          "nodeId": 18,
+          "operation": "min"
+        }
+      ],
+      "total": 10
+    },
+    {
+      "code": "v1-cozy-cat-05",
+      "coordinates": [
+        [0, 5],
+        [1, 3],
+        [1, 4],
+        [2, 1],
+        [2, 2],
+        [2, 3],
+        [2, 4],
+        [3, 0],
+        [3, 1],
+        [3, 2],
+        [3, 3],
+        [3, 4],
+        [4, 0],
+        [4, 1],
+        [4, 2],
+        [4, 3],
+        [4, 4],
+        [5, 0],
+        [5, 3]
+      ],
+      "edges": [
+        [0, 2],
+        [1, 2],
+        [1, 4],
+        [1, 5],
+        [2, 5],
+        [2, 6],
+        [3, 4],
+        [3, 7],
+        [3, 8],
+        [4, 5],
+        [4, 8],
+        [4, 9],
+        [5, 6],
+        [5, 9],
+        [5, 10],
+        [6, 10],
+        [6, 11],
+        [7, 8],
+        [7, 12],
+        [8, 9],
+        [8, 12],
+        [8, 13],
+        [9, 10],
+        [9, 13],
+        [9, 14],
+        [10, 11],
+        [10, 14],
+        [10, 15],
+        [11, 15],
+        [11, 16],
+        [12, 13],
+        [12, 17],
+        [13, 14],
+        [13, 17],
+        [14, 15],
+        [15, 16],
+        [15, 18],
+        [16, 18]
+      ],
+      "dice": [
+        [5, 2],
+        [5, 5],
+        [1, 4],
+        [3, 2],
+        [3, 5],
+        [0, 6],
+        [3, 1],
+        [1, 6],
+        [2, 2],
+        [0, 4],
+        [0, 5],
+        [0, 1],
+        [1, 4],
+        [1, 6],
+        [1, 2],
+        [5, 3],
+        [1, 4],
+        [4, 3],
+        [5, 2]
+      ],
+      "moves": [
+        {
+          "nodeId": 0,
+          "operation": "add"
+        },
+        {
+          "nodeId": 2,
+          "operation": "subtract"
+        },
+        {
+          "nodeId": 1,
+          "operation": "multiply"
+        },
+        {
+          "nodeId": 4,
+          "operation": "min"
+        },
+        {
+          "nodeId": 3,
+          "operation": "max"
+        },
+        {
+          "nodeId": 5,
+          "operation": "add"
+        },
+        {
+          "nodeId": 6,
+          "operation": "subtract"
+        },
+        {
+          "nodeId": 7,
+          "operation": "multiply"
+        },
+        {
+          "nodeId": 8,
+          "operation": "min"
+        },
+        {
+          "nodeId": 9,
+          "operation": "max"
+        },
+        {
+          "nodeId": 10,
+          "operation": "add"
+        },
+        {
+          "nodeId": 11,
+          "operation": "subtract"
+        },
+        {
+          "nodeId": 12,
+          "operation": "multiply"
+        },
+        {
+          "nodeId": 13,
+          "operation": "min"
+        },
+        {
+          "nodeId": 14,
+          "operation": "max"
+        },
+        {
+          "nodeId": 15,
+          "operation": "add"
+        },
+        {
+          "nodeId": 16,
+          "operation": "subtract"
+        },
+        {
+          "nodeId": 17,
+          "operation": "multiply"
+        },
+        {
+          "nodeId": 18,
+          "operation": "min"
+        }
+      ],
+      "total": 11
+    },
+    {
+      "code": "v1-crisp-crane-78",
+      "coordinates": [
+        [0, 2],
+        [0, 3],
+        [0, 4],
+        [1, 1],
+        [1, 2],
+        [1, 3],
+        [1, 4],
+        [2, 0],
+        [2, 1],
+        [2, 2],
+        [2, 3],
+        [2, 4],
+        [3, 0],
+        [3, 1],
+        [3, 2],
+        [3, 3],
+        [4, 0],
+        [4, 1],
+        [4, 2]
+      ],
+      "edges": [
+        [0, 1],
+        [0, 3],
+        [0, 4],
+        [1, 2],
+        [1, 4],
+        [1, 5],
+        [2, 5],
+        [2, 6],
+        [3, 4],
+        [3, 7],
+        [3, 8],
+        [4, 5],
+        [4, 8],
+        [4, 9],
+        [5, 6],
+        [5, 9],
+        [5, 10],
+        [6, 10],
+        [6, 11],
+        [7, 8],
+        [7, 12],
+        [8, 9],
+        [8, 12],
+        [8, 13],
+        [9, 10],
+        [9, 13],
+        [9, 14],
+        [10, 11],
+        [10, 14],
+        [10, 15],
+        [11, 15],
+        [12, 13],
+        [12, 16],
+        [13, 14],
+        [13, 16],
+        [13, 17],
+        [14, 15],
+        [14, 17],
+        [14, 18],
+        [15, 18],
+        [16, 17],
+        [17, 18]
+      ],
+      "dice": [
+        [3, 5],
+        [0, 1],
+        [2, 3],
+        [2, 2],
+        [1, 1],
+        [1, 1],
+        [5, 3],
+        [1, 1],
+        [4, 1],
+        [0, 2],
+        [4, 4],
+        [4, 2],
+        [5, 5],
+        [1, 4],
+        [3, 5],
+        [3, 2],
+        [0, 1],
+        [2, 6],
+        [1, 3]
+      ],
+      "moves": [
+        {
+          "nodeId": 0,
+          "operation": "add"
+        },
+        {
+          "nodeId": 1,
+          "operation": "subtract"
+        },
+        {
+          "nodeId": 2,
+          "operation": "multiply"
+        },
+        {
+          "nodeId": 3,
+          "operation": "min"
+        },
+        {
+          "nodeId": 4,
+          "operation": "max"
+        },
+        {
+          "nodeId": 5,
+          "operation": "add"
+        },
+        {
+          "nodeId": 6,
+          "operation": "subtract"
+        },
+        {
+          "nodeId": 7,
+          "operation": "multiply"
+        },
+        {
+          "nodeId": 8,
+          "operation": "min"
+        },
+        {
+          "nodeId": 9,
+          "operation": "max"
+        },
+        {
+          "nodeId": 10,
+          "operation": "add"
+        },
+        {
+          "nodeId": 11,
+          "operation": "subtract"
+        },
+        {
+          "nodeId": 12,
+          "operation": "multiply"
+        },
+        {
+          "nodeId": 13,
+          "operation": "min"
+        },
+        {
+          "nodeId": 14,
+          "operation": "max"
+        },
+        {
+          "nodeId": 15,
+          "operation": "add"
+        },
+        {
+          "nodeId": 16,
+          "operation": "subtract"
+        },
+        {
+          "nodeId": 17,
+          "operation": "multiply"
+        },
+        {
+          "nodeId": 18,
+          "operation": "min"
+        }
+      ],
+      "total": 18
+    },
+    {
+      "code": "v1-dapper-deer-87",
+      "coordinates": [
+        [0, 2],
+        [0, 3],
+        [1, 2],
+        [1, 3],
+        [1, 4],
+        [2, 1],
+        [2, 2],
+        [2, 3],
+        [2, 4],
+        [3, 1],
+        [3, 2],
+        [3, 3],
+        [3, 4],
+        [4, 0],
+        [4, 1],
+        [4, 2],
+        [4, 3],
+        [4, 4],
+        [5, 1]
+      ],
+      "edges": [
+        [0, 1],
+        [0, 2],
+        [1, 2],
+        [1, 3],
+        [2, 3],
+        [2, 5],
+        [2, 6],
+        [3, 4],
+        [3, 6],
+        [3, 7],
+        [4, 7],
+        [4, 8],
+        [5, 6],
+        [5, 9],
+        [6, 7],
+        [6, 9],
+        [6, 10],
+        [7, 8],
+        [7, 10],
+        [7, 11],
+        [8, 11],
+        [8, 12],
+        [9, 10],
+        [9, 13],
+        [9, 14],
+        [10, 11],
+        [10, 14],
+        [10, 15],
+        [11, 12],
+        [11, 15],
+        [11, 16],
+        [12, 16],
+        [12, 17],
+        [13, 14],
+        [14, 15],
+        [14, 18],
+        [15, 16],
+        [15, 18],
+        [16, 17]
+      ],
+      "dice": [
+        [3, 6],
+        [4, 4],
+        [4, 6],
+        [4, 2],
+        [3, 5],
+        [5, 1],
+        [3, 2],
+        [1, 3],
+        [3, 1],
+        [2, 5],
+        [4, 5],
+        [0, 6],
+        [3, 2],
+        [3, 1],
+        [4, 5],
+        [1, 3],
+        [5, 3],
+        [3, 4],
+        [3, 3]
+      ],
+      "moves": [
+        {
+          "nodeId": 0,
+          "operation": "add"
+        },
+        {
+          "nodeId": 1,
+          "operation": "subtract"
+        },
+        {
+          "nodeId": 2,
+          "operation": "multiply"
+        },
+        {
+          "nodeId": 3,
+          "operation": "min"
+        },
+        {
+          "nodeId": 4,
+          "operation": "max"
+        },
+        {
+          "nodeId": 5,
+          "operation": "add"
+        },
+        {
+          "nodeId": 6,
+          "operation": "subtract"
+        },
+        {
+          "nodeId": 7,
+          "operation": "multiply"
+        },
+        {
+          "nodeId": 8,
+          "operation": "min"
+        },
+        {
+          "nodeId": 9,
+          "operation": "max"
+        },
+        {
+          "nodeId": 10,
+          "operation": "add"
+        },
+        {
+          "nodeId": 11,
+          "operation": "subtract"
+        },
+        {
+          "nodeId": 12,
+          "operation": "multiply"
+        },
+        {
+          "nodeId": 13,
+          "operation": "min"
+        },
+        {
+          "nodeId": 14,
+          "operation": "max"
+        },
+        {
+          "nodeId": 15,
+          "operation": "add"
+        },
+        {
+          "nodeId": 16,
+          "operation": "subtract"
+        },
+        {
+          "nodeId": 17,
+          "operation": "multiply"
+        },
+        {
+          "nodeId": 18,
+          "operation": "min"
+        }
+      ],
+      "total": 6
+    },
+    {
+      "code": "v1-daring-dolphin-47",
+      "coordinates": [
+        [0, 2],
+        [1, 2],
+        [1, 4],
+        [1, 5],
+        [2, 1],
+        [2, 2],
+        [2, 3],
+        [2, 4],
+        [3, 1],
+        [3, 2],
+        [3, 3],
+        [3, 4],
+        [4, 0],
+        [4, 1],
+        [4, 2],
+        [4, 3],
+        [5, 0],
+        [5, 1],
+        [5, 2]
+      ],
+      "edges": [
+        [0, 1],
+        [1, 4],
+        [1, 5],
+        [2, 3],
+        [2, 6],
+        [2, 7],
+        [3, 7],
+        [4, 5],
+        [4, 8],
+        [5, 6],
+        [5, 8],
+        [5, 9],
+        [6, 7],
+        [6, 9],
+        [6, 10],
+        [7, 10],
+        [7, 11],
+        [8, 9],
+        [8, 12],
+        [8, 13],
+        [9, 10],
+        [9, 13],
+        [9, 14],
+        [10, 11],
+        [10, 14],
+        [10, 15],
+        [11, 15],
+        [12, 13],
+        [12, 16],
+        [13, 14],
+        [13, 16],
+        [13, 17],
+        [14, 15],
+        [14, 17],
+        [14, 18],
+        [15, 18],
+        [16, 17],
+        [17, 18]
+      ],
+      "dice": [
+        [4, 5],
+        [2, 6],
+        [1, 3],
+        [2, 3],
+        [2, 2],
+        [4, 5],
+        [2, 1],
+        [4, 5],
+        [1, 2],
+        [2, 1],
+        [2, 2],
+        [5, 3],
+        [1, 4],
+        [3, 6],
+        [3, 1],
+        [3, 6],
+        [3, 1],
+        [5, 2],
+        [0, 1]
+      ],
+      "moves": [
+        {
+          "nodeId": 0,
+          "operation": "add"
+        },
+        {
+          "nodeId": 1,
+          "operation": "subtract"
+        },
+        {
+          "nodeId": 4,
+          "operation": "multiply"
+        },
+        {
+          "nodeId": 5,
+          "operation": "min"
+        },
+        {
+          "nodeId": 6,
+          "operation": "max"
+        },
+        {
+          "nodeId": 2,
+          "operation": "add"
+        },
+        {
+          "nodeId": 3,
+          "operation": "subtract"
+        },
+        {
+          "nodeId": 7,
+          "operation": "multiply"
+        },
+        {
+          "nodeId": 8,
+          "operation": "min"
+        },
+        {
+          "nodeId": 9,
+          "operation": "max"
+        },
+        {
+          "nodeId": 10,
+          "operation": "add"
+        },
+        {
+          "nodeId": 11,
+          "operation": "subtract"
+        },
+        {
+          "nodeId": 12,
+          "operation": "multiply"
+        },
+        {
+          "nodeId": 13,
+          "operation": "min"
+        },
+        {
+          "nodeId": 14,
+          "operation": "max"
+        },
+        {
+          "nodeId": 15,
+          "operation": "add"
+        },
+        {
+          "nodeId": 16,
+          "operation": "subtract"
+        },
+        {
+          "nodeId": 17,
+          "operation": "multiply"
+        },
+        {
+          "nodeId": 18,
+          "operation": "min"
+        }
+      ],
+      "total": 7
+    }
+  ]
+}
