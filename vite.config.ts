@@ -32,7 +32,7 @@ export default defineConfig({
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).catch(async error=>{await caches.delete(CACHE);throw error;})));
 self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));
 self.addEventListener('message',e=>{if(e.data==='ACTIVATE')self.skipWaiting();});
-self.addEventListener('fetch',e=>{const u=new URL(e.request.url);if(e.request.method!=='GET'||u.origin!==location.origin||!u.pathname.startsWith(BASE))return;e.respondWith(caches.open(CACHE).then(async c=>{const hit=await c.match(e.request);if(hit)return hit;if(e.request.mode==='navigate')return (await c.match(BASE+'index.html'))||fetch(e.request);return fetch(e.request);}));});`,
+self.addEventListener('fetch',e=>{const u=new URL(e.request.url);if(e.request.method!=='GET'||u.origin!==location.origin||!u.pathname.startsWith(BASE))return;e.respondWith(caches.open(CACHE).then(async c=>{const hit=await c.match(e.request);if(hit)return hit;if(u.pathname.startsWith(BASE+'assets/')){const old=await caches.match(e.request);if(old)return old;}if(e.request.mode==='navigate')return (await c.match(BASE+'index.html'))||fetch(e.request);return fetch(e.request);}));});`,
         );
       },
     },

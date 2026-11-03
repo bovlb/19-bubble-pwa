@@ -102,7 +102,7 @@ function App() {
         })
         .then((reg) => {
           const check = () => {
-            if (reg.waiting) setUpdate(reg.waiting);
+            setUpdate(reg.active ? reg.waiting : null);
           };
           check();
           reg.addEventListener("updatefound", () =>

@@ -86,6 +86,24 @@ test("cached cold page works offline at Pages subpath", async ({
   await expect(
     offline.getByText("2 of 19 placed · Turn 3", { exact: true }),
   ).toBeVisible();
+  for (let i = 2; i < 19; i++) await submit(offline);
+  await expect(
+    offline.getByText("19 of 19 placed", { exact: true }),
+  ).toBeVisible();
+  await offline.evaluate(() =>
+    Object.defineProperty(navigator, "share", {
+      value: undefined,
+      configurable: true,
+    }),
+  );
+  await offline
+    .getByRole("button", { name: "Share Result", exact: true })
+    .click();
+  await expect(offline.locator("#share")).toHaveValue(/Replay:/);
+  await offline.getByRole("button", { name: "New Game", exact: true }).click();
+  await expect(
+    offline.getByRole("button", { name: "Roll dice", exact: true }),
+  ).toBeVisible();
 });
 test("two tabs reject stale writes without destroying saved history", async ({
   page,
