@@ -263,3 +263,58 @@ test("clean profile joins the same challenge with identical subsequent rolls", a
   }
   await context.close();
 });
+import golden from "../tests/golden.json" with { type: "json" };
+for (const vector of golden.vectors)
+  test(`browser golden vector ${vector.code}`, async ({ page }) => {
+    await page.goto(`./#challenge=${vector.code}`);
+    await page.getByRole("button", { name: "Find challenge" }).click();
+    await expect(page.locator(".code")).toHaveText(vector.code);
+    const rendered = await page
+      .locator(".board line")
+      .evaluateAll((lines) =>
+        lines.map((line) =>
+          ["x1", "y1", "x2", "y2"].map((a) => Number(line.getAttribute(a))),
+        ),
+      );
+    expect(rendered).toEqual(
+      vector.edges.map(([a, b]) => [
+        vector.coordinates[a][0] * 64 + vector.coordinates[a][1] * 32,
+        vector.coordinates[a][1] * 55.43,
+        vector.coordinates[b][0] * 64 + vector.coordinates[b][1] * 32,
+        vector.coordinates[b][1] * 55.43,
+      ]),
+    );
+    for (let turn = 0; turn < 19; turn++) {
+      await page
+        .getByRole("button", { name: "Roll dice", exact: true })
+        .click();
+      await expect(page.locator(".dice")).toHaveAttribute(
+        "aria-label",
+        `Dice ${vector.dice[turn][0]} and ${vector.dice[turn][1]}`,
+      );
+      const move = vector.moves[turn];
+      await page
+        .locator(".operations button")
+        .nth(
+          ["add", "subtract", "multiply", "min", "max"].indexOf(move.operation),
+        )
+        .click();
+      await page.locator(".bubble").nth(move.nodeId).click();
+      await page
+        .getByRole("button", { name: "Submit Move", exact: true })
+        .click();
+      await expect(
+        page.getByText("Saved on this device", { exact: true }),
+      ).toBeVisible();
+    }
+    await expect(page.locator(".total")).toHaveText(String(vector.total));
+  });
+test("first installation does not advertise an update", async ({ page }) => {
+  await start(page);
+  await expect(
+    page.getByText("Ready for offline play", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Apply update at this safe point" }),
+  ).toHaveCount(0);
+});

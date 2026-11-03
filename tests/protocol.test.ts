@@ -174,3 +174,29 @@ it("preserves checksum collisions as explicit choices and handles leading zeros"
   expect(zero).not.toBe("");
   expect((await parseChallenge(zero)).codes).toEqual([zero]);
 });
+it("rejects nonfrontier, incomplete, and completed moves without mutation", async () => {
+  const c = await generateChallenge(golden.vectors[0].code);
+  let s: State = { moves: [], revealed: false };
+  s = applyMove(c, roll(s), { nodeId: 0, operation: "add" });
+  const choosing = roll(s),
+    before = JSON.stringify(choosing),
+    nonfrontier = c.coordinates.findIndex(
+      (_, i) => i !== 0 && !legalNodes(c, s).includes(i),
+    );
+  expect(nonfrontier).toBeGreaterThan(0);
+  expect(() =>
+    applyMove(c, choosing, { nodeId: nonfrontier, operation: "min" }),
+  ).toThrow();
+  expect(() =>
+    applyMove(c, choosing, { nodeId: legalNodes(c, s)[0] } as never),
+  ).toThrow();
+  expect(JSON.stringify(choosing)).toBe(before);
+  const done = replay(
+    c,
+    golden.vectors[0].moves as Parameters<typeof replay>[1],
+  );
+  expect(() => roll(done)).toThrow();
+  expect(() =>
+    applyMove(c, { ...done, revealed: true }, { nodeId: 0, operation: "add" }),
+  ).toThrow();
+});

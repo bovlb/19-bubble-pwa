@@ -597,6 +597,14 @@ function App() {
                       <span>{pair?.[0] ?? "?"}</span>
                       <span>{pair?.[1] ?? "?"}</span>
                     </div>
+                    {!pair && (
+                      <p className="hint">
+                        Remaining uses:{" "}
+                        {operations
+                          .map((o) => `${labels[o]} ${4 - counts[o]}`)
+                          .join(" · ")}
+                      </p>
+                    )}
                     {!pair ? (
                       <button
                         className="primary full"
