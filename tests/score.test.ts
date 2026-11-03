@@ -273,3 +273,19 @@ it("exhaustively checks all four-node graphs and ternary value assignments with 
       verifyCertificate(g, v);
     }
 });
+it("returns an entirely zero-valued empty-board certificate", () => {
+  expect(score(chain(0), [])).toEqual({
+    runs: [],
+    sets: [],
+    orphans: [],
+    longestRun: 0,
+    longestSet: 0,
+    runBonus: 0,
+    setBonus: 0,
+    runPoints: 0,
+    setPoints: 0,
+    subtotal: 0,
+    penalty: 0,
+    total: 0,
+  });
+});

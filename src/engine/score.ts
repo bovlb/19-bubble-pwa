@@ -153,7 +153,7 @@ export function score(graph: Graph, values: (number | null)[]): Certificate {
     runBonus = bonus(longestRun),
     setBonus = bonus(longestSet),
     subtotal = runPoints + setPoints + runBonus + setBonus,
-    penalty = -3 * orphans.length;
+    penalty = orphans.length ? -3 * orphans.length : 0;
   return {
     runs,
     sets,
