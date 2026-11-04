@@ -16,8 +16,9 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from PIL import Image, ImageOps, UnidentifiedImageError
 
-from .geometry import Circle, FittedCircle, connected, detect_circles, edges_for, fit_lattice
+from .geometry import Circle, connected_edges, detect_circles, proximity_edges, select_board
 from .ocr import configured_client, make_contact_sheet, map_words
+from .perspective import detect_board_corners, rectify, unwarp_circles
 
 
 MAX_BYTES = 12 * 1024 * 1024
@@ -30,7 +31,7 @@ _recent: dict[str, deque[float]] = defaultdict(deque)
 
 
 def error(status: int, code: str, message: str) -> JSONResponse:
-    return JSONResponse({"schema": 1, "error": code, "message": message}, status_code=status)
+    return JSONResponse({"schema": 2, "error": code, "message": message}, status_code=status)
 
 
 def allowed_origin(request: Request) -> str | None:
@@ -50,7 +51,7 @@ async def cors(request: Request, call_next):
         response.headers["Access-Control-Allow-Origin"] = origin
         response.headers["Vary"] = "Origin"
         response.headers["Access-Control-Allow-Methods"] = "POST, OPTIONS"
-        response.headers["Access-Control-Allow-Headers"] = "Content-Type, X-Request-ID, X-Bubble-Geometry"
+        response.headers["Access-Control-Allow-Headers"] = "Content-Type, X-Request-ID, X-Bubble-Geometry, X-Board-Corners"
     return response
 
 
@@ -62,7 +63,7 @@ def decode_image(raw: bytes) -> np.ndarray:
         return cv2.cvtColor(np.asarray(image), cv2.COLOR_RGB2BGR)
 
 
-def corrected_geometry(header: str, width: int, height: int) -> list[FittedCircle]:
+def corrected_geometry(header: str, width: int, height: int) -> list[Circle]:
     """Validate user-corrected bubbles before spending an OCR request."""
     if len(header) > 8000:
         raise ValueError("Corrected board is too large")
@@ -73,17 +74,32 @@ def corrected_geometry(header: str, width: int, height: int) -> list[FittedCircl
     for item in data:
         if not isinstance(item, dict):
             raise ValueError("Invalid corrected bubble")
-        x, y, radius, q, r = (item.get(k) for k in ("x", "y", "radius", "q", "r"))
+        x, y, radius = (item.get(k) for k in ("x", "y", "radius"))
         if (not all(isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v)
                     for v in (x, y, radius)) or
-                not all(isinstance(v, int) and not isinstance(v, bool) and abs(v) <= 36
-                        for v in (q, r)) or
                 not (0 <= x <= width and 0 <= y <= height and 1 <= radius <= max(width, height) / 2)):
             raise ValueError("Invalid corrected bubble")
-        result.append(FittedCircle(Circle(float(x), float(y), float(radius), 1), q, r, 0))
-    if not connected([(f.q, f.r) for f in result]):
+        result.append(Circle(float(x), float(y), float(radius), 1))
+    if any(math.hypot(a.x - b.x, a.y - b.y) < 0.5 * min(a.radius, b.radius)
+           for i, a in enumerate(result) for b in result[i + 1:]):
+        raise ValueError("Duplicate corrected bubbles")
+    if not connected_edges(19, proximity_edges(result)):
         raise ValueError("Corrected board must be connected")
     return result
+
+
+def corrected_corners(header: str, width: int, height: int) -> np.ndarray:
+    if len(header) > 300:
+        raise ValueError("Invalid board corners")
+    data = json.loads(header)
+    if not isinstance(data, list) or len(data) != 4:
+        raise ValueError("Invalid board corners")
+    points = np.asarray(data, dtype=np.float64)
+    if points.shape != (4, 2) or not np.isfinite(points).all() or np.any(points < 0) or np.any(points[:, 0] > width) or np.any(points[:, 1] > height):
+        raise ValueError("Invalid board corners")
+    if cv2.contourArea(points.astype(np.float32)) < width * height * 0.1:
+        raise ValueError("Board corners are too close together")
+    return points.astype(np.float32)
 
 
 @app.post("/scan")
@@ -120,58 +136,56 @@ async def scan(request: Request):
     except (ValueError, OSError, UnidentifiedImageError, Image.DecompressionBombError):
         return error(422, "unreadable_image", "This photo could not be read. Try another image.")
     height, width = image.shape[:2]
+    corner_header = request.headers.get("x-board-corners")
+    try:
+        corners, found = (corrected_corners(corner_header, width, height), True) if corner_header else detect_board_corners(image)
+    except (ValueError, TypeError, json.JSONDecodeError):
+        return error(400, "bad_corners", "Check the four board corners.")
     correction = request.headers.get("x-bubble-geometry")
     if correction:
         try:
             selected = corrected_geometry(correction, width, height)
         except (ValueError, TypeError, json.JSONDecodeError):
-            return error(400, "bad_geometry", "Correct the 19 bubble positions before reading numbers.")
+            return error(400, "bad_geometry", "Correct the 19 connected bubble positions before reading numbers.")
         complete = True
     else:
-        candidates = detect_circles(image)
-        fitted = fit_lattice(candidates)
-        assigned = [f for f in fitted if f.q is not None and f.r is not None]
-        assigned.sort(key=lambda f: (f.r, f.q))
-        complete = len(assigned) == 19 and connected([(f.q, f.r) for f in assigned])
+        front, matrix = rectify(image, corners)
+        detected, complete = select_board(detect_circles(front))
         if not complete:
-            # A second, closer Hough separation can recover a faint ring that
-            # was suppressed by a neighboring artwork peak in the first pass.
-            alternate = fit_lattice(detect_circles(image, 0.025))
-            alternate_assigned = [f for f in alternate if f.q is not None and f.r is not None]
-            alternate_assigned.sort(key=lambda f: (f.r, f.q))
-            if len(alternate_assigned) == 19 and connected(
-                    [(f.q, f.r) for f in alternate_assigned]):
-                assigned, complete = alternate_assigned, True
-        # Keep candidates for manual repair. Do not send a guessed subset to OCR.
-        selected = assigned if complete else fitted
+            alternate, alternate_complete = select_board(detect_circles(front, 0.025))
+            if alternate_complete or len(alternate) > len(detected):
+                detected, complete = alternate, alternate_complete
+        selected = unwarp_circles(detected, matrix)
     readings = [(None, "unreadable")] * len(selected)
     warnings: list[str] = []
+    if not found:
+        warnings.append("Board outline was not found. Adjust the four corners and scan again.")
     if not complete:
-        warnings.append("Could not verify all 19 connected bubbles. Correct the circles and positions, or retake the photo.")
+        warnings.append("Could not verify all 19 connected bubbles. Correct the circles or retake the photo.")
     elif app.state.ocr_client is None:
         warnings.append("Handwriting OCR is unavailable. Enter the bubble values manually.")
     else:
         try:
-            sheet = make_contact_sheet(image, [f.circle for f in selected])
+            sheet = make_contact_sheet(image, selected)
             readings = map_words(app.state.ocr_client.read(sheet))
         except Exception:
             warnings.append("Handwriting OCR is unavailable. Enter the bubble values manually.")
     circles = []
-    for i, f in enumerate(selected):
+    for i, circle in enumerate(selected):
         value, ocr_status = readings[i]
         circles.append({
-            "id": f"c{i}", "x": round(f.circle.x, 2), "y": round(f.circle.y, 2),
-            "radius": round(f.circle.radius, 2), "q": f.q, "r": f.r,
-            "value": value, "detectionConfidence": f.circle.confidence,
+            "id": f"c{i}", "x": round(circle.x, 2), "y": round(circle.y, 2),
+            "radius": round(circle.radius, 2),
+            "value": value, "detectionConfidence": circle.confidence,
             "ocrStatus": ocr_status,
         })
-    points = [(f.q, f.r) for f in selected] if complete else []
     return {
-        "schema": 1,
+        "schema": 2,
         "status": "review" if complete else "partial",
         "image": {"width": width, "height": height},
+        "boardCorners": [[round(float(x), 2), round(float(y), 2)] for x, y in corners],
         "circles": circles,
-        "edges": edges_for(points),
+        "edges": proximity_edges(selected) if complete else [],
         "warnings": warnings,
     }
 

@@ -5,8 +5,8 @@ import {
   validateCameraProposal,
   type CameraCircle,
   type CameraProposal,
+  type Corner,
 } from "./camera";
-import type { Point } from "./paper";
 
 const endpoint =
   (window as Window & { __CAMERA_ENDPOINT__?: string }).__CAMERA_ENDPOINT__ ??
@@ -19,7 +19,7 @@ export function CameraImport({
 }: {
   onClose: () => void;
   onConfirm: (result: {
-    points: Point[];
+    graph: import("./engine/rules").Graph;
     values: (number | null)[];
     token: string;
   }) => void;
@@ -28,17 +28,19 @@ export function CameraImport({
   const [photo, setPhoto] = useState("");
   const [proposal, setProposal] = useState<CameraProposal | null>(null);
   const [circles, setCircles] = useState<CameraCircle[]>([]);
+  const [corners, setCorners] = useState<Corner[]>([]);
+  const [selectedCorner, setSelectedCorner] = useState<number | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
-  const [mode, setMode] = useState<"select" | "move" | "add">("select");
+  const [mode, setMode] = useState<"select" | "move" | "add" | "corner">("select");
   const [busy, setBusy] = useState(false);
   const [online, setOnline] = useState(navigator.onLine);
   const [error, setError] = useState("");
   const controller = useRef<AbortController | null>(null);
   const selectedCircle = circles.find((c) => c.id === selected);
-  const edges = cameraEdges(circles);
+  const edges = cameraEdges(circles, corners);
   let shapeError = "";
   try {
-    cameraToPaper(circles);
+    cameraToPaper(circles, corners);
   } catch (e) {
     shapeError = (e as Error).message;
   }
@@ -68,6 +70,7 @@ export function CameraImport({
     setFile(next);
     setProposal(null);
     setCircles([]);
+    setCorners([]);
     setSelected(null);
     setMode("select");
     setError("");
@@ -85,11 +88,12 @@ export function CameraImport({
         "X-Request-ID": crypto.randomUUID(),
       };
       if (corrected) {
-        cameraToPaper(circles);
+        cameraToPaper(circles, corners);
         headers["X-Bubble-Geometry"] = JSON.stringify(
-          circles.map(({ x, y, radius, q, r }) => ({ x, y, radius, q, r })),
+          circles.map(({ x, y, radius }) => ({ x, y, radius })),
         );
       }
+      if (corners.length === 4) headers["X-Board-Corners"] = JSON.stringify(corners);
       const response = await fetch(endpoint, {
         method: "POST",
         body: file,
@@ -110,6 +114,7 @@ export function CameraImport({
       if (abort.signal.aborted) return;
       const checked = validateCameraProposal(data);
       setProposal(checked);
+      setCorners(checked.boardCorners);
       setCircles(
         corrected
           ? checked.circles.map((circle, i) =>
@@ -146,6 +151,8 @@ export function CameraImport({
       ((event.clientY - bounds.top) / bounds.height) * proposal.image.height,
     );
     if (mode === "move" && selected) update(selected, { x, y });
+    if (mode === "corner" && selectedCorner !== null)
+      setCorners(current => current.map((p, i) => i === selectedCorner ? [x, y] : p));
     if (mode === "add") {
       const id = `added-${crypto.randomUUID()}`;
       const radii = circles.map((c) => c.radius).sort((a, b) => a - b);
@@ -156,8 +163,6 @@ export function CameraImport({
           x,
           y,
           radius: radii[Math.floor(radii.length / 2)] ?? 40,
-          q: null,
-          r: null,
           value: null,
           detectionConfidence: 0,
           ocrStatus: "unreadable",
@@ -169,7 +174,7 @@ export function CameraImport({
   }
   function confirm() {
     try {
-      onConfirm(cameraToPaper(circles));
+      onConfirm(cameraToPaper(circles, corners));
     } catch (e) {
       setError((e as Error).message);
     }
@@ -234,7 +239,7 @@ export function CameraImport({
           <h3>Review the proposed board</h3>
           <p role="status">
             {circles.length} circles selected.{" "}
-            {shapeError || "All 19 positions form a connected board."}
+            {shapeError || "All 19 bubbles form a connected board."}
           </p>
           {proposal.warnings.map((warning, i) => (
             <p role="status" key={i}>
@@ -243,7 +248,7 @@ export function CameraImport({
           ))}
           <p>
             Choose a circle to edit it. Use Move or Add, then tap its location
-            in the photo. Connections follow neighboring grid positions.
+            in the photo. Connections follow bubbles that nearly touch.
           </p>
           <div
             className="camera-photo"
@@ -262,6 +267,10 @@ export function CameraImport({
               viewBox={`0 0 ${proposal.image.width} ${proposal.image.height}`}
               aria-hidden="true"
             >
+              {corners.length === 4 && <polygon
+                points={corners.map(([x, y]) => `${x},${y}`).join(" ")}
+                fill="none" stroke="#f0b429" strokeWidth="3"
+              />}
               {edges.map(([a, b]) => (
                 <line
                   key={`${a}-${b}`}
@@ -272,6 +281,15 @@ export function CameraImport({
                 />
               ))}
             </svg>
+            {corners.map(([x, y], i) => (
+              <button key={i} type="button" className="camera-corner"
+                aria-label={`Select board corner ${i + 1}`}
+                style={{ left: `${x / proposal.image.width * 100}%`,
+                  top: `${y / proposal.image.height * 100}%` }}
+                onClick={() => { setSelectedCorner(i); setMode("corner"); }}>
+                ◇
+              </button>
+            ))}
             {circles.map((circle, i) => (
               <button
                 key={circle.id}
@@ -293,6 +311,12 @@ export function CameraImport({
             ))}
           </div>
           <div className="paper-actions">
+            <button disabled={selectedCorner === null} onClick={() => setMode("corner")}>
+              Move selected board corner
+            </button>
+            <button disabled={!online || busy || !endpoint} onClick={() => analyze()}>
+              Detect circles with these corners
+            </button>
             <button disabled={!selectedCircle} onClick={() => setMode("move")}>
               Move selected circle
             </button>
@@ -313,7 +337,8 @@ export function CameraImport({
           {mode !== "select" && (
             <p role="status">
               Tap the photo to{" "}
-              {mode === "move" ? "move the selected circle" : "add a circle"}.
+              {mode === "move" ? "move the selected circle" :
+                mode === "corner" ? "move the selected board corner" : "add a circle"}.
             </p>
           )}
           {selectedCircle && (
@@ -344,44 +369,10 @@ export function CameraImport({
                 />
               </label>
               <label>
-                Grid q
-                <input
-                  type="number"
-                  min="-36"
-                  max="36"
-                  value={selectedCircle.q ?? ""}
-                  onChange={(e) =>
-                    update(
-                      selectedCircle.id,
-                      e.target.value === ""
-                        ? { q: null, r: null }
-                        : {
-                            q: Number(e.target.value),
-                            r: selectedCircle.r ?? 0,
-                          },
-                    )
-                  }
-                />
-              </label>
-              <label>
-                Grid r
-                <input
-                  type="number"
-                  min="-36"
-                  max="36"
-                  value={selectedCircle.r ?? ""}
-                  onChange={(e) =>
-                    update(
-                      selectedCircle.id,
-                      e.target.value === ""
-                        ? { q: null, r: null }
-                        : {
-                            r: Number(e.target.value),
-                            q: selectedCircle.q ?? 0,
-                          },
-                    )
-                  }
-                />
+                Circle radius
+                <input type="number" min="1" max={Math.max(proposal.image.width, proposal.image.height) / 2}
+                  value={selectedCircle.radius}
+                  onChange={e => update(selectedCircle.id, { radius: Number(e.target.value) })} />
               </label>
               <label>
                 Number (0–30 or blank)
@@ -420,8 +411,7 @@ export function CameraImport({
           </button>
           {shapeError && (
             <p>
-              You can also return to manual entry and build the shape on its
-              grid.
+              You can adjust the bubble positions and radii, or return to manual entry.
             </p>
           )}
         </>

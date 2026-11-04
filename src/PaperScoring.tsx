@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
   decodeShape,
+  decodePaperGraph,
   encodeShape,
   paperGraph,
   paperStorageKey,
@@ -13,6 +14,7 @@ import {
 import type { Certificate } from "./engine/score";
 import { share } from "./sharing";
 import { CameraImport } from "./CameraImport";
+import type { Graph } from "./engine/rules";
 
 export function PaperScoring({
   token,
@@ -93,7 +95,7 @@ export function PaperScoring({
     if (draft)
       worker.current?.postMessage({
         revision: current,
-        graph: paperGraph(decodeShape(draft.token)),
+        graph: decodePaperGraph(draft.token),
         values: draft.values,
       });
   }, [draft]);
@@ -123,8 +125,10 @@ export function PaperScoring({
   } catch (e) {
     shapeError = (e as Error).message;
   }
-  const graph = paperGraph(points);
-  const positions = points.map(([q, r]) => [56 * (q + r / 2), 49 * r]);
+  const graph = draft ? decodePaperGraph(draft.token) : paperGraph(points);
+  const positions = draft?.token.startsWith("2.")
+    ? graph.coordinates.map(([x, y]) => [x * 0.45, y * 0.45])
+    : points.map(([q, r]) => [56 * (q + r / 2), 49 * r]);
   const minX = Math.min(0, ...positions.map((p) => p[0])),
     minY = Math.min(0, ...positions.map((p) => p[1]));
   const width = Math.max(0, ...positions.map((p) => p[0])) - minX + 60,
@@ -132,17 +136,17 @@ export function PaperScoring({
   function fresh() {
     const next = {
       id: crypto.randomUUID(),
-      token: shape,
+      token: draft?.token ?? shape,
       name: draft?.name ?? (name.trim() || "Paper board"),
       values: Array(19).fill(null),
       updated: Date.now(),
     };
-    setPoints(decodeShape(shape));
+    if (!draft) setPoints(decodeShape(shape));
     store(next);
     history.replaceState(null, "", shapeLink(next.token, next.name));
   }
   async function shareBoard() {
-    const link = shapeLink(shape, draft?.name ?? name);
+    const link = shapeLink(draft?.token ?? shape, draft?.name ?? name);
     setShared(link);
     if (
       !draft &&
@@ -168,7 +172,7 @@ export function PaperScoring({
     }
   }
   function useCameraBoard(result: {
-    points: Point[];
+    graph: Graph;
     values: (number | null)[];
     token: string;
   }) {
@@ -179,7 +183,7 @@ export function PaperScoring({
       values: result.values,
       updated: Date.now(),
     };
-    setPoints(result.points);
+    setPoints([]);
     setCameraMode(false);
     store(next);
     history.replaceState(null, "", shapeLink(next.token, next.name));
@@ -479,7 +483,7 @@ export function PaperScoring({
               className="paper-saved"
               key={d.id}
               onClick={() => {
-                setPoints(decodeShape(d.token));
+                setPoints(d.token.startsWith("1.") ? decodeShape(d.token) : []);
                 store({ ...d, updated: Date.now() });
                 history.replaceState(null, "", shapeLink(d.token, d.name));
                 setShared("");

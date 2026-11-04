@@ -602,6 +602,12 @@ input[aria-invalid="true"] {
   border-color: #a00000;
   background: #fff1a8;
 }
+.camera-photo button.camera-corner {
+  z-index: 2;
+  border-color: #9b5b00;
+  background: #ffe79c;
+  color: #4b2d00;
+}
 .camera-fields {
   display: flex;
   flex-wrap: wrap;

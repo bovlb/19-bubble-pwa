@@ -1,6 +1,8 @@
 import { describe, it, expect } from "vitest";
 import {
   decodeShape,
+  decodePaperGraph,
+  encodeGraphShape,
   encodeShapeName,
   readShapeRoute,
   encodeShape,
@@ -77,9 +79,22 @@ it("shares optional Unicode names without equals signs or number data", () => {
   expect(readShapeRoute(route)).toEqual({
     token,
     points: normalizeShape(points),
+    graph: paperGraph(normalizeShape(points)),
     name,
   });
   expect(readShapeRoute(token).name).toBe("");
   expect(() => readShapeRoute(token + "/%%%")).toThrow();
   expect(() => readShapeRoute(token + "/QQ/extra")).toThrow();
+});
+
+it("shares a non-lattice explicit graph and keeps old shape links readable", () => {
+  const graph = {
+    coordinates: Array.from({ length: 19 }, (_, i) => [i * 50, i % 2 * 20] as Point),
+    edges: Array.from({ length: 18 }, (_, i) => [i, i + 1] as [number, number]),
+  };
+  const token = encodeGraphShape(graph);
+  expect(decodePaperGraph(token)).toEqual(graph);
+  expect(readShapeRoute(token).graph).toEqual(graph);
+  expect(decodePaperGraph(encodeShape(points))).toEqual(paperGraph(normalizeShape(points)));
+  expect(() => decodePaperGraph(token.slice(0, -1) + "a")).toThrow();
 });

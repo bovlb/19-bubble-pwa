@@ -6,7 +6,8 @@ from fastapi.testclient import TestClient
 from PIL import Image
 
 from camera_service.app import app
-from camera_service.geometry import Circle, connected, detect_circles, edges_for, fit_lattice
+from camera_service.geometry import Circle, connected_edges, detect_circles, proximity_edges, select_board
+from camera_service.perspective import detect_board_corners, rectify, unwarp_circles
 from camera_service.ocr import GUTTER, TILE, make_contact_sheet, map_words
 
 
@@ -28,13 +29,29 @@ def jpeg(image: np.ndarray) -> bytes:
     return cv2.imencode(".jpg", image)[1].tobytes()
 
 
-def test_detects_clean_board_and_fits_connected_lattice():
+def test_detects_clean_board_and_infers_proximity_graph():
     circles = detect_circles(board_image())
     assert len(circles) >= 19
-    fitted = fit_lattice(circles)
-    placed = [(f.q, f.r) for f in fitted if f.q is not None]
-    assert len(placed) >= 19
-    assert connected(placed[:19]) or len(placed) > 19
+    selected, complete = select_board(circles)
+    assert complete
+    assert len(selected) == 19
+    assert connected_edges(19, proximity_edges(selected))
+
+
+def test_perspective_rectification_preserves_circle_centers():
+    original = board_image()
+    height, width = original.shape[:2]
+    src = np.float32([[0, 0], [width - 1, 0], [width - 1, height - 1], [0, height - 1]])
+    dst = np.float32([[35, 20], [width - 35, 5], [width - 1, height - 10], [0, height - 1]])
+    distorted = cv2.warpPerspective(original, cv2.getPerspectiveTransform(src, dst), (width, height))
+    front, matrix = rectify(distorted, dst)
+    assert front.shape[0] > 250 and front.shape[1] > 250
+    mapped = unwarp_circles([Circle(front.shape[1] / 2, front.shape[0] / 2, 25)], matrix)
+    assert abs(mapped[0].x - width / 2) < 25
+    assert abs(mapped[0].y - height / 2) < 25
+    corners, found = detect_board_corners(np.full((400, 500, 3), 255, dtype=np.uint8))
+    assert not found
+    assert corners.shape == (4, 2)
 
 
 def test_contact_sheet_has_nineteen_spaced_tiles_and_maps_box():
@@ -93,9 +110,10 @@ def test_endpoint_returns_reviewable_geometry_without_paid_ocr():
         )
         assert response.status_code == 200
         data = response.json()
-        assert data["schema"] == 1
+        assert data["schema"] == 2
         assert data["image"] == {"width": 680, "height": 430}
         assert len(data["circles"]) >= 19
+        assert len(data["boardCorners"]) == 4
         assert all(c["value"] is None for c in data["circles"])
     finally:
         app.state.ocr_client = original
@@ -121,7 +139,7 @@ def test_corrected_geometry_uses_one_contact_sheet_ocr_call():
             ], "confidence": 0.99}]
 
     geometry = [{"x": 80 + 76 * (q + r / 2), "y": 90 + 66 * r,
-                 "radius": 32, "q": q, "r": r} for q, r in POINTS]
+                 "radius": 32} for q, r in POINTS]
     original = app.state.ocr_client
     fake = FakeOCR()
     app.state.ocr_client = fake
@@ -135,8 +153,8 @@ def test_corrected_geometry_uses_one_contact_sheet_ocr_call():
         assert len(data["circles"]) == 19
         assert data["circles"][0]["value"] == 12
         assert fake.calls == 1
-        geometry[0]["q"] = geometry[1]["q"]
-        geometry[0]["r"] = geometry[1]["r"]
+        geometry[0]["x"] = geometry[1]["x"]
+        geometry[0]["y"] = geometry[1]["y"]
         invalid = TestClient(app).post("/scan", content=jpeg(board_image()), headers={
             "Content-Type": "image/jpeg", "X-Bubble-Geometry": json.dumps(geometry),
         })
