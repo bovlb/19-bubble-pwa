@@ -27,6 +27,7 @@ import {
 } from "./storage";
 import { challengeLink, readResult, share } from "./sharing";
 import "./style.css";
+import { PaperScoring } from "./PaperScoring";
 const labels: Record<Operation, string> = {
   add: "＋ Add",
   subtract: "− Difference",
@@ -42,6 +43,13 @@ const explanation: Record<Operation, string> = {
   max: "Use the larger die",
 };
 function App() {
+  const [paperRoute, setPaperRoute] = useState<string | null>(() =>
+    location.hash.startsWith("#shape/")
+      ? location.hash.slice(7)
+      : location.hash === "#paper"
+        ? ""
+        : null,
+  );
   const [challenge, setChallenge] = useState<Challenge | null>(null),
     [state, setState] = useState<State>({ moves: [], revealed: false }),
     [attempt, setAttempt] = useState<Attempt | null>(null),
@@ -128,6 +136,11 @@ function App() {
         );
     const route = () => {
       const hash = location.hash;
+      if (hash === "#paper" || hash.startsWith("#shape/")) {
+        setPaperRoute(hash === "#paper" ? "" : hash.slice(7));
+        return;
+      }
+      setPaperRoute(null);
       if (hash.startsWith("#challenge=")) {
         run(async () => {
           setChallenge(null);
@@ -276,6 +289,17 @@ function App() {
     ]),
     xs = points?.map((p) => p[0]) ?? [0],
     ys = points?.map((p) => p[1]) ?? [0];
+  if (paperRoute !== null)
+    return (
+      <PaperScoring
+        key={paperRoute}
+        token={paperRoute}
+        onHome={() => {
+          history.replaceState(null, "", location.pathname + location.search);
+          setPaperRoute(null);
+        }}
+      />
+    );
   return (
     <main>
       <header>
@@ -343,6 +367,13 @@ function App() {
               onClick={() => run(async () => start(await randomCode()))}
             >
               Start new game
+            </button>
+            <button
+              onClick={() => {
+                location.hash = "paper";
+              }}
+            >
+              Score a paper game
             </button>
           </section>
           <div className="home-grid">
