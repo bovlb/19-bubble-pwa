@@ -1,7 +1,9 @@
 import { test, expect } from "@playwright/test";
 async function start(page: any) {
   await page.goto("./");
-  await page.getByRole("button", { name: "Start Game", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Start new game", exact: true })
+    .click();
   await expect(
     page.getByRole("button", { name: "Roll dice", exact: true }),
   ).toBeVisible();
@@ -247,7 +249,6 @@ test("clean profile joins the same challenge with identical subsequent rolls", a
   const context = await browser.newContext();
   const other = await context.newPage();
   await other.goto(`http://127.0.0.1:4173/19-bubble-pwa/#challenge=${code}`);
-  await other.getByRole("button", { name: "Find challenge" }).click();
   await expect(other.locator(".code")).toHaveText(code);
   for (let turn = 0; turn < 3; turn++) {
     for (const p of [page, other])
@@ -271,7 +272,6 @@ import golden from "../tests/golden.json" with { type: "json" };
 for (const vector of golden.vectors)
   test(`browser golden vector ${vector.code}`, async ({ page }) => {
     await page.goto(`./#challenge=${vector.code}`);
-    await page.getByRole("button", { name: "Find challenge" }).click();
     await expect(page.locator(".code")).toHaveText(vector.code);
     const rendered = await page
       .locator(".board line")
@@ -402,7 +402,7 @@ test("checksum error is focused beside the join fields and preserves input", asy
   await page.getByLabel("Adjective", { exact: true }).fill("amber");
   await page.getByLabel("Noun", { exact: true }).fill("badger");
   await page.getByLabel("Check digits", { exact: true }).fill("79");
-  await page.getByRole("button", { name: "Find challenge" }).click();
+  await page.getByRole("button", { name: "Join existing game" }).click();
   const error = page.locator("#join-error");
   await expect(error).toBeFocused();
   await expect(error).toContainText("Check digits don’t match");
@@ -420,12 +420,32 @@ test("checksum error is focused beside the join fields and preserves input", asy
     .getByLabel("Or paste a full code or link")
     .fill("v1-amber-badger-79");
   await expect(error).toHaveCount(0);
-  await page.getByRole("button", { name: "Find challenge" }).click();
+  await page.getByRole("button", { name: "Join existing game" }).click();
   await expect(error).toBeFocused();
   await expect(page.locator("#join")).toHaveAttribute("aria-invalid", "true");
   await expect(page.locator("#join")).toHaveValue("v1-amber-badger-79");
   await page.locator("#join").fill("v1-amber-badger-78");
   await expect(error).toHaveCount(0);
-  await page.getByRole("button", { name: "Find challenge" }).click();
+  await page.getByRole("button", { name: "Join existing game" }).click();
   await expect(page.locator(".code")).toHaveText("v1-amber-badger-78");
+});
+
+test("shared challenge opens directly and resumes on reload", async ({
+  page,
+}) => {
+  await start(page);
+  const code = await page.locator(".code").innerText();
+  await page.goto(`./#challenge=${code}`);
+  await expect(
+    page.getByRole("button", { name: "Roll dice", exact: true }),
+  ).toBeVisible();
+  await submit(page);
+  await page.reload();
+  await expect(page.locator(".code")).toHaveText(code);
+  await expect(
+    page.getByText("1 of 19 placed · Turn 2", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Start new game", exact: true }),
+  ).toHaveCount(0);
 });

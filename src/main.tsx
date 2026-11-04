@@ -129,8 +129,38 @@ function App() {
     const route = () => {
       const hash = location.hash;
       if (hash.startsWith("#challenge=")) {
-        setJoin(decodeURIComponent(hash.slice(11)));
-        setChallenge(null);
+        run(async () => {
+          setChallenge(null);
+          clearJoinFeedback();
+          try {
+            const code = decodeURIComponent(hash.slice(11));
+            setJoin(code);
+            const parsed = await parseChallenge(code);
+            if (parsed.codes.length !== 1) {
+              setChoices(parsed.codes);
+              return;
+            }
+            const canonical = parsed.codes[0];
+            const saved = (await listAttempts()).filter(
+              (a) => a.code === canonical,
+            );
+            for (const candidate of saved) {
+              try {
+                await validateAttempt(candidate);
+              } catch {
+                continue;
+              }
+              await resume(candidate);
+              return;
+            }
+            await start(canonical);
+          } catch (error) {
+            setJoinError({
+              message: (error as Error).message,
+              checksum: error instanceof ChecksumError,
+            });
+          }
+        });
       } else if (hash.startsWith("#result=")) {
         readResult(hash.slice(8))
           .then(({ challenge, state }) => {
@@ -312,7 +342,7 @@ function App() {
               disabled={busy}
               onClick={() => run(async () => start(await randomCode()))}
             >
-              Start Game
+              Start new game
             </button>
           </section>
           <div className="home-grid">
@@ -423,7 +453,7 @@ function App() {
                     </p>
                   </div>
                 )}
-                <button disabled={busy}>Find challenge</button>
+                <button disabled={busy}>Join existing game</button>
               </form>
               {choices.map((code) => (
                 <div key={code}>
