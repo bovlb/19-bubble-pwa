@@ -29,7 +29,7 @@ class FittedCircle:
     residual: float | None
 
 
-def detect_circles(image: np.ndarray) -> list[Circle]:
+def detect_circles(image: np.ndarray, min_distance_factor: float = 0.048) -> list[Circle]:
     """Return plausible ring candidates; do not manufacture a 19th bubble."""
     height, width = image.shape[:2]
     short = min(height, width)
@@ -43,7 +43,9 @@ def detect_circles(image: np.ndarray) -> list[Circle]:
     s = min(gray.shape)
     min_radius = max(9, round(s * 0.024))
     max_radius = max(min_radius + 2, round(s * 0.095))
-    min_distance = max(14, round(s * 0.048))
+    # A close second pass can recover a real bubble suppressed by a nearby
+    # false Hough peak. The caller retains the more conservative first pass.
+    min_distance = max(10, round(s * min_distance_factor))
     raw: list[Circle] = []
     for threshold in (30, 23, 18):
         found = cv2.HoughCircles(

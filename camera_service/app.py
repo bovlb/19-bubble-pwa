@@ -133,6 +133,15 @@ async def scan(request: Request):
         assigned = [f for f in fitted if f.q is not None and f.r is not None]
         assigned.sort(key=lambda f: (f.r, f.q))
         complete = len(assigned) == 19 and connected([(f.q, f.r) for f in assigned])
+        if not complete:
+            # A second, closer Hough separation can recover a faint ring that
+            # was suppressed by a neighboring artwork peak in the first pass.
+            alternate = fit_lattice(detect_circles(image, 0.025))
+            alternate_assigned = [f for f in alternate if f.q is not None and f.r is not None]
+            alternate_assigned.sort(key=lambda f: (f.r, f.q))
+            if len(alternate_assigned) == 19 and connected(
+                    [(f.q, f.r) for f in alternate_assigned]):
+                assigned, complete = alternate_assigned, True
         # Keep candidates for manual repair. Do not send a guessed subset to OCR.
         selected = assigned if complete else fitted
     readings = [(None, "unreadable")] * len(selected)
