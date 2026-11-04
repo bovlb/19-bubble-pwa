@@ -23,3 +23,13 @@ Deploy as a serverless HTTPS container with request-based billing and zero minim
 **This change does not deploy the service or enable paid OCR.** The supplied photos are local evaluation references and are not committed or shipped. The detector still requires manual correction on many filled photos; do not publish automatic accuracy claims until a human-checked evaluation set measures circle, edge, and OCR quality separately.
 
 In a local no-OCR run on the 12 supplied images, the service returned reviewable geometry for 2 of 6 blank references and 1 of 6 filled photos. The remaining 9 stayed partial, including the cropped `gameplay-3-3.webp`. These are status counts, not verified circle/edge accuracy measurements.
+
+## Create a private golden answer set
+
+Run the local annotation page with the paths to your private photo folders:
+
+```sh
+.venv/bin/python -m camera_service.tools.golden_labeler --images /path/to/sample_images --images /path/to/blank_boards
+```
+
+Open `http://127.0.0.1:8765`. The page starts with the detector's proposal. Drag circles to their true centers, adjust radii, add or delete candidates, and enter the written values. Choose **Edit connections** and click two bubbles to toggle their adjacency. Move the four board corners if needed. Export one `.golden.json` per image; the file contains coordinates, corners, edges, values, a completeness flag, and notes, but no photo pixels. Use **Resume from JSON** to continue an exported answer. Browser-local edits also survive a reload. Mark cropped or incomplete photos as incomplete. The labeler binds only to loopback and disables paid OCR even when the normal service has an OCR provider configured. Keep these answers private alongside the supplied photos; do not commit official-board derivatives to the public repository.
