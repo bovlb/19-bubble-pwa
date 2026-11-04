@@ -25,7 +25,7 @@ import {
   validateAttempt,
   type Attempt,
 } from "./storage";
-import { challengeLink, readResult, resultLink, share } from "./sharing";
+import { challengeLink, readResult, share } from "./sharing";
 import "./style.css";
 const labels: Record<Operation, string> = {
   add: "＋ Add",
@@ -268,7 +268,7 @@ function App() {
   }
   function scoreText() {
     if (!certificate || !challenge) return "";
-    return `19 Bubbles · ${challenge.code}\nScore ${certificate.total}\nRuns ${certificate.runPoints}; sets ${certificate.setPoints}; run bonus ${certificate.runBonus}; set bonus ${certificate.setBonus}; subtotal ${certificate.subtotal}; orphan penalty ${certificate.penalty}\n${challengeLink(challenge.code)}\nReplay: ${resultLink(challenge.code, state.moves)}`;
+    return `19 Bubbles · ${challenge.code}\nScore ${certificate.total}\nRuns ${certificate.runPoints}; sets ${certificate.setPoints}; run bonus ${certificate.runBonus}; set bonus ${certificate.setBonus}; subtotal ${certificate.subtotal}; orphan penalty ${certificate.penalty}\n${challengeLink(challenge.code)}`;
   }
   const points = challenge?.coordinates.map(([q, r]) => [
       q * 64 + r * 32,

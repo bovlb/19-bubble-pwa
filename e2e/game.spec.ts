@@ -17,7 +17,7 @@ async function submit(page: any) {
     page.getByText("Saved on this device", { exact: true }),
   ).toBeVisible();
 }
-test("full game, refresh after roll, replay, responsive layout", async ({
+test("full game, refresh after roll, short result sharing, responsive layout", async ({
   page,
   context,
 }) => {
@@ -58,18 +58,10 @@ test("full game, refresh after roll, replay, responsive layout", async ({
   await page.getByRole("button", { name: "Share Result", exact: true }).click();
   const text = await page.locator("#share").inputValue();
   expect(text).toContain(code);
-  const link = text.split("Replay: ")[1];
-  const other = await context.newPage();
-  await other.goto(link);
-  await expect(
-    other.getByText("READ-ONLY REPLAY", { exact: true }),
-  ).toBeVisible();
-  await expect(other.locator(".total")).toHaveText(
-    await page.locator(".total").innerText(),
-  );
-  await expect(
-    other.getByRole("button", { name: "Roll dice", exact: true }),
-  ).toHaveCount(0);
+  expect(text).toContain(`Score ${completedTotal}`);
+  expect(text).toContain(`#challenge=${code}`);
+  expect(text).not.toContain("#result=");
+  expect(text.match(/https?:\/\//g)).toHaveLength(1);
 });
 test("cached cold page works offline at Pages subpath", async ({
   page,
@@ -105,7 +97,7 @@ test("cached cold page works offline at Pages subpath", async ({
   await offline
     .getByRole("button", { name: "Share Result", exact: true })
     .click();
-  await expect(offline.locator("#share")).toHaveValue(/Replay:/);
+  await expect(offline.locator("#share")).toHaveValue(/#challenge=/);
   await offline.getByRole("button", { name: "New Game", exact: true }).click();
   await expect(
     offline.getByRole("button", { name: "Roll dice", exact: true }),
