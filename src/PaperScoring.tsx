@@ -12,6 +12,7 @@ import {
 } from "./paper";
 import type { Certificate } from "./engine/score";
 import { share } from "./sharing";
+import { CameraImport } from "./CameraImport";
 
 export function PaperScoring({
   token,
@@ -31,6 +32,7 @@ export function PaperScoring({
   const [certificate, setCertificate] = useState<Certificate | null>(null),
     [highlight, setHighlight] = useState<number[]>([]);
   const [blocked, setBlocked] = useState(false);
+  const [cameraMode, setCameraMode] = useState(false);
   const worker = useRef<Worker | null>(null),
     revision = useRef(0),
     fields = useRef<(HTMLInputElement | null)[]>([]);
@@ -165,6 +167,23 @@ export function PaperScoring({
       setNotice("Copy the board link below.");
     }
   }
+  function useCameraBoard(result: {
+    points: Point[];
+    values: (number | null)[];
+    token: string;
+  }) {
+    const next: PaperDraft = {
+      id: crypto.randomUUID(),
+      token: result.token,
+      name: name.trim() || "Scanned board",
+      values: result.values,
+      updated: Date.now(),
+    };
+    setPoints(result.points);
+    setCameraMode(false);
+    store(next);
+    history.replaceState(null, "", shapeLink(next.token, next.name));
+  }
   return (
     <main className="paper">
       <header>
@@ -178,9 +197,17 @@ export function PaperScoring({
       )}
       <p role="status">{notice}</p>
       <p>Create a board → Share its shape → Enter your numbers</p>
-      {!draft ? (
+      {!draft && cameraMode ? (
+        <CameraImport
+          onClose={() => setCameraMode(false)}
+          onConfirm={useCameraBoard}
+        />
+      ) : !draft ? (
         <section className="card">
           <h2>Create board</h2>
+          <button onClick={() => setCameraMode(true)}>
+            Scan a paper board
+          </button>
           <label>
             Shape name (optional)
             <input

@@ -561,3 +561,63 @@ input[aria-invalid="true"] {
   font-weight: 700;
   text-align: right;
 }
+.camera-photo {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background: #eee;
+}
+.camera-photo img,
+.camera-photo svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.camera-photo img {
+  object-fit: contain;
+  cursor: crosshair;
+}
+.camera-photo svg {
+  pointer-events: none;
+}
+.camera-photo svg line {
+  stroke: #e32929;
+  stroke-width: 4;
+  stroke-dasharray: 8 5;
+}
+.camera-photo button {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: 3px solid #063b68;
+  border-radius: 50%;
+  background: #fffdf7e8;
+  color: #122;
+  font-weight: bold;
+}
+.camera-photo button.selected {
+  border-color: #a00000;
+  background: #fff1a8;
+}
+.camera-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: end;
+  margin: 16px 0;
+}
+.camera-fields h4 {
+  flex-basis: 100%;
+  margin: 0;
+}
+.camera-fields label {
+  display: flex;
+  flex-direction: column;
+  min-width: 100px;
+}
+.camera-fields input {
+  max-width: 130px;
+}

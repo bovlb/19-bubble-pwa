@@ -1,0 +1,5 @@
+**
+!camera_service/
+!camera_service/**
+camera_service/**/__pycache__/
+camera_service/**/*.pyc

@@ -1,6 +1,6 @@
 # Camera import for paper scoring — implementation specification
 
-Status: proposed · 2026-11-04 · Scope: camera import for the existing manual paper scorer
+Status: implementation draft; release evaluation pending · 2026-11-04 · Scope: camera import for the existing manual paper scorer
 
 ## 1. Purpose and relationship to the existing app
 
@@ -22,6 +22,8 @@ From **Score a paper game**, the player can choose **Scan board**, use the devic
 2. Correct a bubble's lattice position and inspect all induced edges. Changing a lattice position updates its neighbor connections. Provide a clear path into the existing manual shape editor if the proposed geometry cannot be repaired in the photo overlay.
 3. Edit each value, including clearing it. `null` means missing, unreadable, or unfilled; it is never interpreted as zero. A confirmed 0 is the integer zero.
 4. Confirm the board and continue in the existing manual scorer. Confirmation validates the shape with `normalizeShape`, derives edges with `paperGraph`, and uses the existing score worker. Do not create a separate photographic scoring calculation.
+
+If automatic geometry is partial, the player may correct all 19 bubbles and explicitly re-upload the photo to the same endpoint for targeted OCR. The service must validate the corrected positions before calling the OCR provider. Values the player already entered remain intact.
 
 The app must not silently save or score an unreviewed proposal as final. It may show a provisional score during review only if clearly labeled and based on the same exact scorer. If processing fails or the user declines to upload, manual shape and value entry remain available. The camera flow requires connectivity; the current manual scorer remains offline-capable.
 

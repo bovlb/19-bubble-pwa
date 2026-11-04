@@ -73,3 +73,12 @@ Paper boards and scores save in this browser's local storage, separately from
 played games. They work offline after the app is cached. Unreadable saved data
 is retained; save failures remain visible and offer retry. Clearing browser
 storage removes these records.
+
+The optional **Scan a paper board** flow is specified in
+[`docs/CAMERA_SCORER_SPEC.md`](docs/CAMERA_SCORER_SPEC.md) and implemented by the
+[`camera_service`](camera_service) container. It uploads a photo, proposes the
+19-bubble shape and values, and requires review before using this same paper
+scorer. Scanning needs a configured online endpoint; manual entry remains
+offline-capable. See [`docs/CAMERA_SERVICE.md`](docs/CAMERA_SERVICE.md) for local
+setup, deployment configuration, limits, and privacy behavior. The endpoint is
+not deployed by this repository change.

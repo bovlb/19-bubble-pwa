@@ -1,0 +1,1 @@
+"""Camera scoring service package."""
