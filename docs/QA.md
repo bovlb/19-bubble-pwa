@@ -24,3 +24,18 @@ Desktop benchmark: macOS arm64, Node 24, 1,000 generated boards with coordinate 
 - Final contrast and practical touch-target review on the actual generated layouts. SVG bubbles scale to fit the viewport; the expandable Large bubble controls provide 54 px minimum-height buttons on narrow layouts.
 
 WebKit iPad emulation is useful automated coverage, but cannot close these physical-device gates. No deployment or physical-device testing is claimed.
+
+## Manual paper scoring
+
+Automated coverage includes normalized shape round trips; checksum, version,
+connectivity and duplicate-position rejection; Unicode shape names without `=`;
+all-neighbor edges; independently calculated manual scores; blank versus zero;
+creation and shape-only sharing; empty entry for a new recipient; local resume;
+fresh scores retaining earlier scores; offline imports/entry; invalid-link
+recovery; unreadable records retained; and quota failures with successful retry.
+Chrome and WebKit browser scenarios cover narrow 375px layouts; iPad-sized
+820px screenshots were also inspected for creation and number entry.
+
+Still verify physical iPad numeric-keyboard behavior and Messages link detection
+on an actual device. Automated tests verify the literal URL contains no equals
+signs and opens in a clean browser; they do not exercise Apple's Messages app.

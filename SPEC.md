@@ -302,3 +302,18 @@ Present and obtain approval for a repository-specific plan first. Suggested sequ
 Each stage should remain testable without the next. Use synthetic boards only in development fixtures; the shipped player uses generated boards from day one. In the PR, distinguish automated passes, manual checks actually performed, unresolved issues, and any approved deviations from defaults. Document commands to develop, test, build, and deploy plus protocol compatibility and storage limitations.
 
 Done means every fixed requirement is implemented, release-gate tests pass, the exact scorer is independently validated, no placeholder dictionary/protocol vectors remain, the static build works at the target Pages path, and a reviewable PR includes evidence. Publishing requires the owner's deployment authorization. No optional solver, OCR, undo, or online service is needed for completion.
+
+## Approved extension: manual paper scoring (November 2026)
+
+Provide a separate **Score a paper game** entry point: create board, share board,
+score board. Users select 19 connected positions on a triangular grid, optionally
+name the shape, and enter 0–30 or blank into each bubble. Derive all neighbor
+edges automatically and reuse the exact scorer without requiring move history.
+Keep partial scores distinct from complete scores and blank distinct from zero.
+
+Share only the shape and optional name through a versioned, validated URL-safe
+fragment with no equals signs. Opening a shape link enters manual scoring
+immediately. Store paper scores locally and preserve earlier scores when starting
+a fresh score. Do not bundle official map artwork or photographic recognition.
+The existing result-share text contains only the score breakdown and challenge
+link; the optional long replay link described in section 7 is no longer emitted.
