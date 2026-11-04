@@ -54,7 +54,7 @@ Original dictionary edition v1 contains 32 adjectives × 32 nouns (1,024 challen
 
 Choose **Score a paper game** from the home screen. Tap exactly 19 connected
 positions on the triangular grid to match the paper board, and optionally name
-it. **Expand grid** provides more room. Connections are automatic between all
+it. The editor starts with an 8 × 8 rectangle. **Expand grid** provides more room, up to 19 × 19 positions. Connections are automatic between all
 neighboring selected positions; official map artwork is not bundled.
 
 **Share board** sends only the shape and optional name, never entered numbers.

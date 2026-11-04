@@ -21,7 +21,7 @@ export function PaperScoring({
   onHome: () => void;
 }) {
   const [points, setPoints] = useState<Point[]>([]),
-    [size, setSize] = useState(7),
+    [size, setSize] = useState(8),
     [name, setName] = useState("");
   const [draft, setDraft] = useState<PaperDraft | null>(null),
     [saved, setSaved] = useState<PaperDraft[]>([]);
