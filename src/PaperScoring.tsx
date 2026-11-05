@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
   decodeShape,
+  decodePaperGraph,
   encodeShape,
   paperGraph,
   paperStorageKey,
@@ -12,6 +13,8 @@ import {
 } from "./paper";
 import type { Certificate } from "./engine/score";
 import { share } from "./sharing";
+import { CameraImport } from "./CameraImport";
+import type { Graph } from "./engine/rules";
 
 export function PaperScoring({
   token,
@@ -31,6 +34,7 @@ export function PaperScoring({
   const [certificate, setCertificate] = useState<Certificate | null>(null),
     [highlight, setHighlight] = useState<number[]>([]);
   const [blocked, setBlocked] = useState(false);
+  const [cameraMode, setCameraMode] = useState(false);
   const worker = useRef<Worker | null>(null),
     revision = useRef(0),
     fields = useRef<(HTMLInputElement | null)[]>([]);
@@ -91,7 +95,7 @@ export function PaperScoring({
     if (draft)
       worker.current?.postMessage({
         revision: current,
-        graph: paperGraph(decodeShape(draft.token)),
+        graph: decodePaperGraph(draft.token),
         values: draft.values,
       });
   }, [draft]);
@@ -121,8 +125,10 @@ export function PaperScoring({
   } catch (e) {
     shapeError = (e as Error).message;
   }
-  const graph = paperGraph(points);
-  const positions = points.map(([q, r]) => [56 * (q + r / 2), 49 * r]);
+  const graph = draft ? decodePaperGraph(draft.token) : paperGraph(points);
+  const positions = draft?.token.startsWith("2.")
+    ? graph.coordinates.map(([x, y]) => [x * 0.45, y * 0.45])
+    : points.map(([q, r]) => [56 * (q + r / 2), 49 * r]);
   const minX = Math.min(0, ...positions.map((p) => p[0])),
     minY = Math.min(0, ...positions.map((p) => p[1]));
   const width = Math.max(0, ...positions.map((p) => p[0])) - minX + 60,
@@ -130,17 +136,17 @@ export function PaperScoring({
   function fresh() {
     const next = {
       id: crypto.randomUUID(),
-      token: shape,
+      token: draft?.token ?? shape,
       name: draft?.name ?? (name.trim() || "Paper board"),
       values: Array(19).fill(null),
       updated: Date.now(),
     };
-    setPoints(decodeShape(shape));
+    if (!draft) setPoints(decodeShape(shape));
     store(next);
     history.replaceState(null, "", shapeLink(next.token, next.name));
   }
   async function shareBoard() {
-    const link = shapeLink(shape, draft?.name ?? name);
+    const link = shapeLink(draft?.token ?? shape, draft?.name ?? name);
     setShared(link);
     if (
       !draft &&
@@ -165,6 +171,23 @@ export function PaperScoring({
       setNotice("Copy the board link below.");
     }
   }
+  function useCameraBoard(result: {
+    graph: Graph;
+    values: (number | null)[];
+    token: string;
+  }) {
+    const next: PaperDraft = {
+      id: crypto.randomUUID(),
+      token: result.token,
+      name: name.trim() || "Scanned board",
+      values: result.values,
+      updated: Date.now(),
+    };
+    setPoints([]);
+    setCameraMode(false);
+    store(next);
+    history.replaceState(null, "", shapeLink(next.token, next.name));
+  }
   return (
     <main className="paper">
       <header>
@@ -178,9 +201,17 @@ export function PaperScoring({
       )}
       <p role="status">{notice}</p>
       <p>Create a board → Share its shape → Enter your numbers</p>
-      {!draft ? (
+      {!draft && cameraMode ? (
+        <CameraImport
+          onClose={() => setCameraMode(false)}
+          onConfirm={useCameraBoard}
+        />
+      ) : !draft ? (
         <section className="card">
           <h2>Create board</h2>
+          <button onClick={() => setCameraMode(true)}>
+            Scan a paper board
+          </button>
           <label>
             Shape name (optional)
             <input
@@ -452,7 +483,7 @@ export function PaperScoring({
               className="paper-saved"
               key={d.id}
               onClick={() => {
-                setPoints(decodeShape(d.token));
+                setPoints(d.token.startsWith("1.") ? decodeShape(d.token) : []);
                 store({ ...d, updated: Date.now() });
                 history.replaceState(null, "", shapeLink(d.token, d.name));
                 setShared("");

@@ -2,3 +2,9 @@ node_modules/
 dist/
 test-results/
 playwright-report/
+/.venv/
+__pycache__/
+*.pyc
+/sample_images/
+/blank_boards/
+/golden_answers/
