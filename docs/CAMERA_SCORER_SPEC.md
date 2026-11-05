@@ -8,7 +8,7 @@ The camera scorer is an optional online import into the existing manual paper sc
 
 From **Score a paper game**, the player chooses **Scan a paper board**, takes or uploads a JPEG, PNG, or WebP photo, and explicitly submits it. The full photo is sent to the camera service; only cropped bubble interiors are sent to handwriting OCR. The review shows the original photo, four board corners, candidate circles, proximity connections, and editable numbers. The player may move any corner and rerun detection; add, remove, move, or resize circles; and correct each value. A blank or unreadable value is `null`, distinct from zero. When exactly 19 distinct connected bubbles are present, the user can confirm and continue in the existing paper scorer or request a second OCR pass over corrected circles. Values already entered by the player survive that pass.
 
-Partial detections remain editable and cannot be confirmed as a complete board. A cropped photo or ambiguous circle set must not be silently promoted to a complete result. Upload failures do not alter saved paper drafts. Manual scoring remains available without connectivity or a configured camera service.
+Partial detections remain editable and cannot be confirmed as a complete board. A photo missing any bubble or containing an ambiguous circle set must not be silently promoted to a complete result. Cropping outside the bubble region does not by itself make a board incomplete. Upload failures do not alter saved paper drafts. Manual scoring remains available without connectivity or a configured camera service.
 
 ## Geometry and OCR pipeline
 
