@@ -12,9 +12,9 @@ Partial detections remain editable and cannot be confirmed as a complete board. 
 
 ## Geometry and OCR pipeline
 
-1. Apply EXIF orientation. Detect the board/card quadrilateral and rectify perspective. If the outline cannot be found, return the full-image corners with a warning; the user can correct the corners and rerun detection.
-2. Detect candidate circular outlines in the rectified image, merge duplicate rings, and retain confidence. Select 19 only when the proposed set has consistent ring sizes, no severe overlap, a connected proximity graph, plausible edge count, and at most six neighbors per bubble. Keep candidates for correction otherwise. Never manufacture a missing circle.
-3. Infer each edge from near contact between circle boundaries; no printed connection line, fixed nearest-neighbor count, board template, or axial lattice is assumed. Use the rectified geometry for adjacency, including after user corrections.
+1. Apply EXIF orientation and detect bubbles in the original image. Attempt board/card quadrilateral detection and rectification as an additional view. A photo may show every bubble while some sheet corners are outside the frame; absence of a reliable outline must not block detection. Return image-bound corners as editable placeholders when the outline is unknown.
+2. Run circular-outline detectors on each view and map candidates back to original-image coordinates. Compare complete 19-circle proposals across detector passes; prefer proposals that agree on centers and have consistent ring sizes. Select 19 only when the proposed set has no severe overlap, a connected proximity graph, plausible edge count, and at most six neighbors per bubble. If none passes, combine candidate suggestions for correction without promoting the mixed set to a complete board. Never manufacture a missing circle.
+3. Infer each edge from near contact between circle boundaries; no printed connection line, fixed nearest-neighbor count, board template, or axial lattice is assumed. Use original-image bubble geometry for adjacency, including after user corrections.
 4. Crop the 19 interiors, place them on one 4×5 contact sheet with gutters, and submit one OCR image. Map OCR boxes to tiles. Accept only integers 0–30; ambiguous, conflicting, missing, or invalid readings become `null`. OCR is never used to infer shape or score.
 5. Return a reviewable proposal. Scoring remains in the existing worker after explicit confirmation.
 

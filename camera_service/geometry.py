@@ -17,6 +17,39 @@ class Circle:
     confidence: float = 0.5
 
 
+def merge_candidates(*groups: list[Circle]) -> list[Circle]:
+    """Combine image-space detections, preferring earlier groups at overlaps."""
+    merged: list[Circle] = []
+    for group in groups:
+        for circle in group:
+            if any(math.hypot(circle.x - other.x, circle.y - other.y) <
+                   0.65 * min(circle.radius, other.radius) for other in merged):
+                continue
+            merged.append(circle)
+    return merged
+
+
+def detect_circles_alt(image: np.ndarray, threshold: float = 0.9) -> list[Circle]:
+    """Use OpenCV's arc-based Hough detector as an independent ring proposal."""
+    height, width = image.shape[:2]
+    short = min(height, width)
+    scale = min(1.0, 1200 / short)
+    small = cv2.resize(image, None, fx=scale, fy=scale) if scale < 1 else image
+    gray = cv2.cvtColor(small, cv2.COLOR_BGR2GRAY)
+    gray = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8)).apply(gray)
+    gray = cv2.GaussianBlur(gray, (5, 5), 1.2)
+    s = min(gray.shape)
+    found = cv2.HoughCircles(
+        gray, cv2.HOUGH_GRADIENT_ALT, dp=1.2,
+        minDist=max(10, round(s * 0.025)), param1=220, param2=threshold,
+        minRadius=max(7, round(s * 0.02)), maxRadius=round(s * 0.11),
+    )
+    if found is None:
+        return []
+    return [Circle(float(x / scale), float(y / scale), float(r / scale), threshold)
+            for x, y, r in found[0]]
+
+
 def detect_circles(image: np.ndarray, min_distance_factor: float = 0.048) -> list[Circle]:
     """Return plausible ring candidates; do not manufacture a 19th bubble."""
     height, width = image.shape[:2]
@@ -80,7 +113,7 @@ def proximity_edges(circles: list[Circle]) -> list[tuple[int, int]]:
     return [(a, b) for a, first in enumerate(circles)
             for b in range(a + 1, len(circles))
             if 0.72 <= math.hypot(first.x - circles[b].x, first.y - circles[b].y)
-            / (first.radius + circles[b].radius) <= 1.32]
+            / (first.radius + circles[b].radius) <= 1.2]
 
 
 def connected_edges(count: int, edges: list[tuple[int, int]]) -> bool:
@@ -130,7 +163,7 @@ def plausible_board(circles: list[Circle]) -> bool:
     if len(circles) != 19:
         return False
     radii = np.asarray([c.radius for c in circles])
-    if float(radii.std() / radii.mean()) > 0.18:
+    if float(radii.std() / radii.mean()) > 0.12:
         return False
     distances = [math.hypot(a.x - b.x, a.y - b.y) / (a.radius + b.radius)
                  for i, a in enumerate(circles) for b in circles[i + 1:]]

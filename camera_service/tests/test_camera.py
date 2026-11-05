@@ -6,7 +6,7 @@ from fastapi.testclient import TestClient
 from PIL import Image
 
 from camera_service.app import app
-from camera_service.geometry import Circle, connected_edges, detect_circles, proximity_edges, select_board
+from camera_service.geometry import Circle, connected_edges, detect_circles, plausible_board, proximity_edges, select_board
 from camera_service.perspective import detect_board_corners, rectify, unwarp_circles
 from camera_service.ocr import GUTTER, TILE, make_contact_sheet, map_words
 
@@ -36,6 +36,15 @@ def test_detects_clean_board_and_infers_proximity_graph():
     assert complete
     assert len(selected) == 19
     assert connected_edges(19, proximity_edges(selected))
+
+
+def test_nearly_touching_edges_and_uniform_radii_gate():
+    assert proximity_edges([Circle(0, 0, 20), Circle(44, 0, 20)]) == [(0, 1)]
+    assert proximity_edges([Circle(0, 0, 20), Circle(50, 0, 20)]) == []
+    rings = [Circle(80 + 76 * (q + r / 2), 90 + 66 * r, 32) for q, r in POINTS]
+    assert plausible_board(rings)
+    rings[0] = Circle(rings[0].x, rings[0].y, 52)
+    assert not plausible_board(rings)
 
 
 def test_perspective_rectification_preserves_circle_centers():
@@ -114,6 +123,8 @@ def test_endpoint_returns_reviewable_geometry_without_paid_ocr():
         assert data["image"] == {"width": 680, "height": 430}
         assert len(data["circles"]) >= 19
         assert len(data["boardCorners"]) == 4
+        assert data["status"] == "review"
+        assert not any("outline" in warning.lower() for warning in data["warnings"])
         assert all(c["value"] is None for c in data["circles"])
     finally:
         app.state.ocr_client = original

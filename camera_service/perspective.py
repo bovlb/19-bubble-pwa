@@ -32,7 +32,14 @@ def detect_board_corners(image: np.ndarray) -> tuple[np.ndarray, bool]:
             continue
         area = cv2.contourArea(polygon)
         if area >= minimum:
-            choices.append((area, order_corners(polygon[:, 0, :] / scale)))
+            points = polygon[:, 0, :] / scale
+            # A contour that follows multiple frame edges is usually the crop
+            # boundary, not four visible paper corners.
+            on_frame = ((points[:, 0] <= 2) | (points[:, 0] >= width - 3) |
+                        (points[:, 1] <= 2) | (points[:, 1] >= height - 3))
+            if np.count_nonzero(on_frame) >= 2:
+                continue
+            choices.append((area, order_corners(points)))
     if not choices:
         return full, False
     return max(choices, key=lambda item: item[0])[1], True

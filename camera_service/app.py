@@ -16,7 +16,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from PIL import Image, ImageOps, UnidentifiedImageError
 
-from .geometry import Circle, connected_edges, detect_circles, proximity_edges, select_board
+from .geometry import Circle, connected_edges, detect_circles, detect_circles_alt, merge_candidates, proximity_edges, select_board
 from .ocr import configured_client, make_contact_sheet, map_words
 from .perspective import detect_board_corners, rectify, unwarp_circles
 
@@ -102,6 +102,63 @@ def corrected_corners(header: str, width: int, height: int) -> np.ndarray:
     return points.astype(np.float32)
 
 
+def propose_geometry(image: np.ndarray, corners: np.ndarray, found: bool) -> tuple[list[Circle], bool]:
+    """Try independent views before combining noisy candidates for correction."""
+    front, matrix = rectify(image, corners)
+    views = [(front, matrix), (image, None)] if found else [(image, None), (front, matrix)]
+    candidate_groups: list[tuple[str, list[Circle]]] = []
+    complete_groups: list[list[Circle]] = []
+    for view, transform in views:
+        for label, detector in (
+            ("classic", lambda frame: detect_circles(frame)),
+            ("alt_strict", lambda frame: detect_circles_alt(frame, 0.9)),
+            ("alt_relaxed", lambda frame: detect_circles_alt(frame, 0.8)),
+            ("alt_rescue", lambda frame: detect_circles_alt(frame, 0.7)),
+        ):
+            candidates = detector(view)
+            if transform is not None:
+                candidates = unwarp_circles(candidates, transform)
+            candidate_groups.append((label, candidates))
+            selected, complete = select_board(candidates)
+            if complete:
+                complete_groups.append(selected)
+    if complete_groups:
+        # A wrong ring can still form a connected 19-node graph. Printed rings
+        # on one board have nearly equal radii. Agreement across independent
+        # image views and detector thresholds is stronger than either alone.
+        def rank(group: list[Circle]) -> tuple[int, float]:
+            consensus = sum(
+                sum(any(math.hypot(c.x - other.x, c.y - other.y) <
+                        0.6 * min(c.radius, other.radius) for other in proposal)
+                    for c in group)
+                for proposal in complete_groups if proposal is not group
+            )
+            variation = float(np.std([c.radius for c in group]) /
+                              np.mean([c.radius for c in group]))
+            return consensus, -variation
+        best = max(complete_groups, key=rank)
+        return best, True
+    for view, transform in views:
+        candidates = detect_circles(view, 0.025)
+        if transform is not None:
+            candidates = unwarp_circles(candidates, transform)
+        candidate_groups.append(("classic_close", candidates))
+        selected, complete = select_board(candidates)
+        if complete:
+            return selected, True
+    # Mixed candidates are only suggestions for manual correction; they must
+    # never be promoted automatically to a complete board.
+    alt_groups = [group for label, group in candidate_groups if label.startswith("alt")]
+    anchor = min((group for group in alt_groups if len(group) >= 19),
+                 key=lambda group: len(group), default=None)
+    if anchor is None:
+        anchor = max(alt_groups, key=len, default=[])
+    if not anchor:
+        anchor = max((group for _, group in candidate_groups), key=len, default=[])
+    other_groups = [group for _, group in candidate_groups if group is not anchor]
+    return merge_candidates(anchor, *other_groups)[:25], False
+
+
 @app.post("/scan")
 async def scan(request: Request):
     if request.headers.get("content-type", "").split(";")[0] not in ALLOWED_TYPES:
@@ -149,17 +206,9 @@ async def scan(request: Request):
             return error(400, "bad_geometry", "Correct the 19 connected bubble positions before reading numbers.")
         complete = True
     else:
-        front, matrix = rectify(image, corners)
-        detected, complete = select_board(detect_circles(front))
-        if not complete:
-            alternate, alternate_complete = select_board(detect_circles(front, 0.025))
-            if alternate_complete or len(alternate) > len(detected):
-                detected, complete = alternate, alternate_complete
-        selected = unwarp_circles(detected, matrix)
+        selected, complete = propose_geometry(image, corners, found)
     readings = [(None, "unreadable")] * len(selected)
     warnings: list[str] = []
-    if not found:
-        warnings.append("Board outline was not found. Adjust the four corners and scan again.")
     if not complete:
         warnings.append("Could not verify all 19 connected bubbles. Correct the circles or retake the photo.")
     elif app.state.ocr_client is None:
